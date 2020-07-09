@@ -10,4 +10,5 @@ globals = {
 	"LibStub",
 	"HuokanPayout",
 	"GetCoinTextureString",
+	"strsplit",
 }
