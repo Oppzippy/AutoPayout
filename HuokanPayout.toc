@@ -1,0 +1,10 @@
+## Interface: 80300
+## Title: Huokan Payout
+## Notes: Automatically send payouts through in game mail.
+## Author: Oppzippy
+## Version: @project-version@
+## OptionalDeps: Ace3
+
+Core.lua
+PayoutQueue.lua
+Frames\include.xml
