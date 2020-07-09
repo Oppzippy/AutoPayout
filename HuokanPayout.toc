@@ -5,6 +5,7 @@
 ## Version: @project-version@
 ## OptionalDeps: Ace3
 
+Locales\locales.xml
 Core.lua
 PayoutQueue.lua
 Frames\include.xml

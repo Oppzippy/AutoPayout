@@ -18,7 +18,7 @@ end
 function PayoutSetupFramePrototype:CreateFrame()
 	self.frame = AceGUI:Create("Frame")
 	self.frame:SetCallback("OnClose", function(widget)
-		AceGUI:Release(widget)
+		self:Hide()
 	end)
 	self.frame:SetWidth(500)
 	self.frame:SetHeight(300)
@@ -26,30 +26,31 @@ function PayoutSetupFramePrototype:CreateFrame()
 	self.frame:SetLayout("Flow")
 
 	self.frame:SetTitle(HuokanPayout.L.payout_setup)
+
 	self.pasteBox = self:CreatePasteBox()
 	self.pasteBox:SetRelativeWidth(1)
 	self.frame:AddChild(self.pasteBox)
+
 	self.unitSelection = self:CreateUnitSelection()
 	self.unitSelection:SetRelativeWidth(1)
 	self.frame:AddChild(self.unitSelection)
+
 	self.startButton = self:CreateStartButton()
+	self:UpdateStartButton()
 	self.startButton:SetRelativeWidth(1)
 	self.frame:AddChild(self.startButton)
 end
 
 function PayoutSetupFramePrototype:CreatePasteBox()
 	local editBox = AceGUI:Create("MultiLineEditBox")
+	editBox:SetText(self.pasteBoxText or "")
 	editBox:SetLabel(HuokanPayout.L.payout_csv)
 	editBox:SetNumLines(6)
 	editBox:SetMaxLetters(0)
 	editBox:SetCallback("OnEnterPressed", function(_, _, text)
 		self.callbacks:Fire("PayoutDataChanged", self, text, self.pasteBoxText)
 		self.pasteBoxText = text
-		local success, err = pcall(function() HuokanPayout.PayoutQueue.ParseCSV(self.pasteBoxText) end)
-		self.startButton:SetDisabled(not success)
-		if not success then
-			self.frame:SetStatusText(err.message)
-		end
+		self:UpdateStartButton()
 	end)
 	return editBox
 end
@@ -69,7 +70,7 @@ do
 		AddDropdownUnit(dropdown, gold)
 		AddDropdownUnit(dropdown, silver)
 		AddDropdownUnit(dropdown, copper)
-		dropdown:SetValue(gold)
+		dropdown:SetValue(self.unit or gold)
 		dropdown:SetCallback("OnValueChanged", function(_, _, key)
 			self.unit = key
 		end)
@@ -87,12 +88,20 @@ function PayoutSetupFramePrototype:CreateStartButton()
 	return button
 end
 
+function PayoutSetupFramePrototype:UpdateStartButton()
+	local success, err = pcall(function() HuokanPayout.PayoutQueue.ParseCSV(self.pasteBoxText) end)
+	self.startButton:SetDisabled(not success)
+	if not success then
+		self.frame:SetStatusText(err.message)
+	else
+		self.frame:SetStatusText("")
+	end
+end
+
 function PayoutSetupFramePrototype:Hide()
 	if self.frame then
 		self.frame:Release()
 		self.frame = nil
-		self.pasteBoxText = nil
-		self.unit = nil
 	end
 end
 
