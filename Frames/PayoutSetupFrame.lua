@@ -25,7 +25,7 @@ function PayoutSetupFramePrototype:CreateFrame()
 	self.frame:EnableResize(false)
 	self.frame:SetLayout("Flow")
 
-	self.frame:SetTitle(L.payout_setup)
+	self.frame:SetTitle(HuokanPayout.L.payout_setup)
 	self.pasteBox = self:CreatePasteBox()
 	self.pasteBox:SetRelativeWidth(1)
 	self.frame:AddChild(self.pasteBox)
