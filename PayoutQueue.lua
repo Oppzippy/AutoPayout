@@ -3,13 +3,18 @@ PayoutQueuePrototype.__index = PayoutQueuePrototype
 
 HuokanPayout.PayoutQueue = PayoutQueuePrototype
 
+local function FormatPlayerName(name)
+	return name:sub(1, 1):upper() .. name:sub(2):lower()
+end
+
 function PayoutQueuePrototype.ParseCSV(csv)
 	local map = {}
 	local lines = { strsplit("\n", csv) }
 	for _, line in ipairs(lines) do
 		local player, gold = strsplit(",", line)
+		player = FormatPlayerName(player)
 		gold = tonumber(gold)
-		if player and #player > 0 then
+		if #player > 0 then
 			if gold then
 				map[player] = gold
 			else

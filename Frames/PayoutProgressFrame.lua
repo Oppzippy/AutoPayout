@@ -35,6 +35,11 @@ function PayoutProgressFramePrototype:CreateFrame()
 	frame:SetLayout("Flow")
 
 	frame:SetTitle(HuokanPayout.L.payout)
+
+	self.startButton = self:CreateStartButton()
+	self.startButton:SetRelativeWidth(0.5)
+	frame:AddChild(self.startButton)
+
 	return frame
 end
 
@@ -61,6 +66,25 @@ function PayoutProgressFramePrototype:UpdateProgressList()
 		self.scrollFrame:AddChild(label)
 		self.detailedPayoutListingLabels[player] = label
 	end
+end
+
+function PayoutProgressFramePrototype:CreateStartButton()
+	local button = AceGUI:Create("Button")
+	button:SetText(HuokanPayout.L.start)
+	button:SetCallback("OnClick", function()
+		if not self.isPayoutInProgress then
+			self.isPayoutInProgress = true
+			button:SetText(HuokanPayout.L.pause)
+			self.frame:SetStatusText(HuokanPayout.L.payout_in_progress)
+			self.callbacks:Fire("StartPayout", self)
+		else
+			self.isPayoutInProgress = false
+			button:SetText(HuokanPayout.L.start)
+			self.frame:SetStatusText("")
+			self.callbacks:Fire("StopPayout", self)
+		end
+	end)
+	return button
 end
 
 function PayoutProgressFramePrototype:Hide()

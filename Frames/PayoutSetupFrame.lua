@@ -64,13 +64,10 @@ do
 	function PayoutSetupFramePrototype:CreateUnitSelection()
 		local dropdown = AceGUI:Create("Dropdown")
 		dropdown:SetLabel(HuokanPayout.L.unit)
-		local copper = 1
-		local silver = copper * 100
-		local gold = silver * 100
-		AddDropdownUnit(dropdown, gold * 1000)
-		AddDropdownUnit(dropdown, gold)
-		AddDropdownUnit(dropdown, silver)
-		AddDropdownUnit(dropdown, copper)
+		AddDropdownUnit(dropdown, COPPER_PER_GOLD * 1000)
+		AddDropdownUnit(dropdown, COPPER_PER_GOLD)
+		AddDropdownUnit(dropdown, COPPER_PER_SILVER)
+		AddDropdownUnit(dropdown, 1)
 		dropdown:SetValue(self.unit)
 		dropdown:SetCallback("OnValueChanged", function(_, _, key)
 			self.unit = key
