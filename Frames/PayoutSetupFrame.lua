@@ -8,6 +8,7 @@ HuokanPayout.PayoutSetupFrame = PayoutSetupFramePrototype
 function PayoutSetupFramePrototype.Create()
 	local frame = setmetatable({}, PayoutSetupFramePrototype)
 	frame.callbacks = CallbackHandler:New(frame)
+	frame.unit = 10000 -- 1 gold, TODO custom default unit
 	return frame
 end
 
@@ -70,7 +71,7 @@ do
 		AddDropdownUnit(dropdown, gold)
 		AddDropdownUnit(dropdown, silver)
 		AddDropdownUnit(dropdown, copper)
-		dropdown:SetValue(self.unit or gold)
+		dropdown:SetValue(self.unit)
 		dropdown:SetCallback("OnValueChanged", function(_, _, key)
 			self.unit = key
 		end)
@@ -102,7 +103,14 @@ function PayoutSetupFramePrototype:Hide()
 	if self.frame then
 		self.frame:Release()
 		self.frame = nil
+		self.pasteBox = nil
+		self.unitSelection = nil
+		self.startButton = nil
 	end
+end
+
+function PayoutSetupFramePrototype:IsVisible()
+	return self.frame ~= nil
 end
 
 function PayoutSetupFramePrototype:GetPayments()
