@@ -41,6 +41,7 @@ function PayoutExecutorPrototype:SendNext()
 end
 
 function PayoutExecutorPrototype:MAIL_SHOW()
+	-- TODO this doesn't work. Maybe a different event or a longer delay?
 	self:SendNext()
 end
 
