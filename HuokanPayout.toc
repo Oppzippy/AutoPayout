@@ -8,4 +8,5 @@
 Locales\locales.xml
 Core.lua
 PayoutQueue.lua
+EventHandler.lua
 Frames\include.xml

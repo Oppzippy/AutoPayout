@@ -13,4 +13,7 @@ globals = {
 	"strsplit",
 	"COPPER_PER_GOLD",
 	"COPPER_PER_SILVER",
+	"CreateFrame",
+	"SendMail",
+	"SetSendMailMoney",
 }
