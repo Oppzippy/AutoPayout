@@ -5,11 +5,31 @@ HuokanPayout = AceAddon:NewAddon("HuokanPayout", "AceConsole-3.0")
 
 function HuokanPayout:OnInitialize()
 	self.L = AceLocale:GetLocale("HuokanPayout")
-	self.payoutSetupFrame = HuokanPayout.PayoutSetupFrame.Create()
-	self.payoutSetupFrame.RegisterCallback(self, "StartPayout")
-	self.payoutProgressFrame = HuokanPayout.PayoutProgressFrame.Create()
-	--self.payoutScheduler = HuokanPayout:NewPayoutScheduler()
+	self:ResetState()
 	self:RegisterChatCommand("payout", "SlashPayout")
+end
+
+function HuokanPayout:ResetState()
+	self:StopPayout()
+	self.payoutQueue = nil
+	if self.payoutSetupFrame then self.payoutSetupFrame:Hide() end
+	if self.payoutProgressFrame then self.payoutProgressFrame:Hide() end
+
+	self.payoutSetupFrame = HuokanPayout.PayoutSetupFrame.Create()
+	self.payoutSetupFrame.RegisterCallback(self, "StartPayout", "ShowPayoutProgressFrame")
+
+	self.payoutProgressFrame = HuokanPayout.PayoutProgressFrame.Create()
+	self.payoutProgressFrame.RegisterCallback(self, "StartPayout")
+	self.payoutProgressFrame.RegisterCallback(self, "Done", "ResetState")
+end
+
+function HuokanPayout:Debug(...)
+	-- TODO add developer mode toggle
+	self:Print(...)
+end
+
+function HuokanPayout:Debugf(...)
+	self:Printf(...)
 end
 
 function HuokanPayout:SlashPayout(args)
@@ -38,11 +58,7 @@ function HuokanPayout:HideSetupPayoutFrame()
 	self.PayoutSetupFrame:Hide()
 end
 
-function HuokanPayout:ShowPayoutProgressFrame()
-	self.payoutProgressFrame:Show()
-end
-
-function HuokanPayout:StartPayout(_, frame)
+function HuokanPayout:ShowPayoutProgressFrame(_, frame)
 	local payments = frame:GetPayments()
 	local success, err = pcall(function()
 		self.payoutQueue = HuokanPayout.PayoutQueue.Create(payments)
@@ -57,4 +73,26 @@ function HuokanPayout:ShowInProgressPayout(_, frame)
 	else
 		error("Tried to resume nil payout queue")
 	end
+end
+
+function HuokanPayout:StartPayout()
+	if not self.payoutQueue then error("Tried to start payout with no payout queue") end
+	if not self.payoutExecutor then
+		self.payoutExecutor = HuokanPayout.PayoutExecutor.Create(self.payoutQueue)
+		self.payoutExecutor.RegisterCallback(self, "MailSent")
+		self.payoutExecutor.RegisterCallback(self, "Stop", "StopPayout")
+	end
+	self.payoutExecutor:Start()
+end
+
+function HuokanPayout:StopPayout()
+	if self.payoutExecutor then
+		self.payoutExecutor:Destroy()
+		self.payoutExecutor = nil
+		self.payoutProgressFrame:SetStartButtonState(false)
+	end
+end
+
+function HuokanPayout:MailSent(_, _, payout)
+	self.payoutProgressFrame:MarkPaid(payout.player)
 end

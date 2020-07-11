@@ -31,22 +31,26 @@ local function UnregisterEvent(self, event)
 end
 
 local function UnregisterAllEvents(self)
-	for event in next, callbacks do
+	for event, _ in next, callbacks do
 		UnregisterEvent(self, event)
 	end
 end
 
-function EventHandler.Embed(t)
-	function t:RegisterEvent(event, callback)
+function EventHandler.Embed(t, registerEventName, unregisterEventName, unregisterAllEventsName)
+	registerEventName = registerEventName or "RegisterEvent"
+	unregisterEventName = unregisterEventName or "UnregisterEvent"
+	unregisterAllEventsName = unregisterAllEventsName or "UnregisterAllEvents"
+
+	t[registerEventName] = function(self, event, callback)
 		callback = callback or event
 		RegisterEvent(self, event, callback)
 	end
 
-	function t:UnregisterEvent(event)
+	t[unregisterEventName] = function(self, event)
 		UnregisterEvent(self, event)
 	end
 
-	function t:UnregisterAllEvents()
+	t[unregisterAllEventsName] = function(self)
 		UnregisterAllEvents(self)
 	end
 end

@@ -32,7 +32,6 @@ function PayoutQueuePrototype.Create(payments)
 		payoutQueue.payments[#payoutQueue.payments+1] = {
 			player = player,
 			copper = copper,
-			isPaid = false,
 		}
 	end
 	payoutQueue.index = 1

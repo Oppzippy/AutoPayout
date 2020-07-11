@@ -16,4 +16,5 @@ globals = {
 	"CreateFrame",
 	"SendMail",
 	"SetSendMailMoney",
+	"C_Timer",
 }

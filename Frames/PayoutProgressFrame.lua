@@ -5,21 +5,24 @@ local PayoutProgressFramePrototype = {}
 PayoutProgressFramePrototype.__index = PayoutProgressFramePrototype
 HuokanPayout.PayoutProgressFrame = PayoutProgressFramePrototype
 
+local DEFAULT_IMAGE = "Interface\\RAIDFRAME\\ReadyCheck-Waiting"
 local PAID_IMAGE = "Interface\\RAIDFRAME\\ReadyCheck-Ready"
 local UNPAID_IMAGE = "Interface\\RAIDFRAME\\ReadyCheck-NotReady"
 
 function PayoutProgressFramePrototype.Create()
 	local frame = setmetatable({}, PayoutProgressFramePrototype)
 	frame.callbacks = CallbackHandler:New(frame)
+	frame.frames = {}
 	return frame
 end
 
 function PayoutProgressFramePrototype:Show(payoutQueue)
 	self.payoutQueue = payoutQueue
 
-	self.frame = self:CreateFrame()
-	self.scrollContainer, self.scrollFrame = self:CreateDetailedProgressList()
-	self.frame:AddChild(self.scrollContainer)
+	local frames = self.frames
+	frames.frame = self:CreateFrame()
+	frames.scrollContainer, frames.scrollFrame = self:CreateDetailedProgressList()
+	frames.frame:AddChild(frames.scrollContainer)
 
 	self:UpdateProgressList()
 end
@@ -36,9 +39,15 @@ function PayoutProgressFramePrototype:CreateFrame()
 
 	frame:SetTitle(HuokanPayout.L.payout)
 
-	self.startButton = self:CreateStartButton()
-	self.startButton:SetRelativeWidth(0.5)
-	frame:AddChild(self.startButton)
+	local frames = self.frames
+
+	frames.startButton = self:CreateStartButton()
+	frames.startButton:SetRelativeWidth(0.5)
+	frame:AddChild(frames.startButton)
+
+	frames.doneButton = self:CreateDoneButton()
+	frames.doneButton:SetRelativeWidth(0.5)
+	frame:AddChild(frames.doneButton)
 
 	return frame
 end
@@ -55,16 +64,20 @@ function PayoutProgressFramePrototype:CreateDetailedProgressList()
 end
 
 function PayoutProgressFramePrototype:UpdateProgressList()
-	self.scrollFrame:ReleaseChildren()
-	self.detailedPayoutListingLabels = {}
+	self.frames.scrollFrame:ReleaseChildren()
+	self.frames.detailedPayoutListingLabels = {}
 	for player, copper, isPaid in self.payoutQueue:IteratePayments() do
 		local label = AceGUI:Create("Label")
 		label:SetText(string.format("%s - %s", player, GetCoinTextureString(copper)))
-		label:SetImage(isPaid and PAID_IMAGE or UNPAID_IMAGE)
+		if type(isPaid) == "boolean" then
+			label:SetImage(PAID_IMAGE or UNPAID_IMAGE)
+		else
+			label:SetImage(DEFAULT_IMAGE)
+		end
 		label:SetFullWidth(true)
 		label:SetJustifyV("CENTER")
-		self.scrollFrame:AddChild(label)
-		self.detailedPayoutListingLabels[player] = label
+		self.frames.scrollFrame:AddChild(label)
+		self.frames.detailedPayoutListingLabels[player] = label
 	end
 end
 
@@ -73,37 +86,50 @@ function PayoutProgressFramePrototype:CreateStartButton()
 	button:SetText(HuokanPayout.L.start)
 	button:SetCallback("OnClick", function()
 		if not self.isPayoutInProgress then
-			self.isPayoutInProgress = true
-			button:SetText(HuokanPayout.L.pause)
-			self.frame:SetStatusText(HuokanPayout.L.payout_in_progress)
+			self:SetStartButtonState(true)
 			self.callbacks:Fire("StartPayout", self)
 		else
-			self.isPayoutInProgress = false
-			button:SetText(HuokanPayout.L.start)
-			self.frame:SetStatusText("")
+			self:SetStartButtonState(false)
 			self.callbacks:Fire("StopPayout", self)
 		end
 	end)
 	return button
 end
 
+function PayoutProgressFramePrototype:SetStartButtonState(isDown)
+	self.isPayoutInProgress = isDown
+	self.frames.startButton:SetText(isDown and HuokanPayout.L.pause or HuokanPayout.L.start)
+	self.frames.frame:SetStatusText(isDown and HuokanPayout.L.payout_in_progress or "")
+end
+
+function PayoutProgressFramePrototype:CreateDoneButton()
+	local button = AceGUI:Create("Button")
+	button:SetText(HuokanPayout.L.done)
+	button:SetCallback("OnClick", function()
+		self.callbacks:Fire("Done", self)
+	end)
+	return button
+end
+
 function PayoutProgressFramePrototype:Hide()
-	if self.frame then
-		AceGUI:Release(self.frame)
-		self.frame = nil
-		self.scrollContainer = nil
-		self.scrollFrame = nil
-		self.detailedPayoutListingLabels = nil
-		self.payoutQueue = nil
+	if self.frames.frame then
+		AceGUI:Release(self.frames.frame)
+		self.frames = {}
 	end
 end
 
 function PayoutProgressFramePrototype:IsVisible()
-	return self.frame ~= nil
+	return self.frames.frame ~= nil
 end
 
 function PayoutProgressFramePrototype:MarkPaid(player)
-	local label = self.detailedPayoutListingLabels[player]
+	local label = self.frames.detailedPayoutListingLabels[player]
 	if not label then error("Tried to change paid status of nonexistent label") end
 	label:SetImage(PAID_IMAGE)
+end
+
+function PayoutProgressFramePrototype:MarkError(player)
+	local label = self.frames.detailedPayoutListingLabels[player]
+	if not label then error("Tried to change paid status of nonexistent label") end
+	label:SetImage(UNPAID_IMAGE)
 end

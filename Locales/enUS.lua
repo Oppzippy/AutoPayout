@@ -11,4 +11,5 @@ L.not_assigned_gold_value = "%s is not assigned a gold value"
 
 L.start = "Start"
 L.pause = "Pause"
+L.done = "Done"
 L.payout_in_progress = "Payout in progress. Please keep the mailbox open."
