@@ -1,14 +1,16 @@
+local _, addon = ...
+
 local AceGUI = LibStub("AceGUI-3.0")
 local CallbackHandler = LibStub("CallbackHandler-1.0")
+local L = addon.L
 
 local PayoutSetupFramePrototype = {}
 PayoutSetupFramePrototype.__index = PayoutSetupFramePrototype
-HuokanPayout.PayoutSetupFrame = PayoutSetupFramePrototype
+addon.PayoutSetupFrame = PayoutSetupFramePrototype
 
 function PayoutSetupFramePrototype.Create()
 	local frame = setmetatable({}, PayoutSetupFramePrototype)
 	frame.callbacks = CallbackHandler:New(frame)
-	frame.unit = 10000 -- 1 gold, TODO custom default unit
 	return frame
 end
 
@@ -22,11 +24,15 @@ function PayoutSetupFramePrototype:CreateFrame()
 		self:Hide()
 	end)
 	self.frame:SetWidth(500)
-	self.frame:SetHeight(300)
+	self.frame:SetHeight(325)
 	self.frame:EnableResize(false)
 	self.frame:SetLayout("Flow")
 
-	self.frame:SetTitle(HuokanPayout.L.payout_setup)
+	self.frame:SetTitle(L.payout_setup)
+
+	self.subjectBox = self:CreateSubjectBox()
+	self.subjectBox:SetRelativeWidth(1)
+	self.frame:AddChild(self.subjectBox)
 
 	self.pasteBox = self:CreatePasteBox()
 	self.pasteBox:SetRelativeWidth(1)
@@ -42,10 +48,30 @@ function PayoutSetupFramePrototype:CreateFrame()
 	self.frame:AddChild(self.startButton)
 end
 
+function PayoutSetupFramePrototype:CreateSubjectBox()
+	local editBox = AceGUI:Create("EditBox")
+	editBox:SetText(self.subjectBoxText or addon.core.db.profile.defaultSubject)
+	editBox:SetLabel(L.subject)
+	editBox:SetMaxLetters(64)
+	editBox:SetCallback("OnEnterPressed", function(_, _, text)
+		if #text == 0 then
+			editBox:SetText(addon.core.db.profile.defaultSubject)
+			self.subjectBoxText = nil
+		else
+			self.subjectBoxText = text
+		end
+	end)
+	return editBox
+end
+
+function PayoutSetupFramePrototype:GetSubject()
+	return self.subjectBoxText or addon.core.db.profile.defaultSubject
+end
+
 function PayoutSetupFramePrototype:CreatePasteBox()
 	local editBox = AceGUI:Create("MultiLineEditBox")
 	editBox:SetText(self.pasteBoxText or "")
-	editBox:SetLabel(HuokanPayout.L.payout_csv)
+	editBox:SetLabel(L.payout_csv)
 	editBox:SetNumLines(6)
 	editBox:SetMaxLetters(0)
 	editBox:SetCallback("OnEnterPressed", function(_, _, text)
@@ -63,12 +89,12 @@ do
 
 	function PayoutSetupFramePrototype:CreateUnitSelection()
 		local dropdown = AceGUI:Create("Dropdown")
-		dropdown:SetLabel(HuokanPayout.L.unit)
+		dropdown:SetLabel(L.unit)
 		AddDropdownUnit(dropdown, COPPER_PER_GOLD * 1000)
 		AddDropdownUnit(dropdown, COPPER_PER_GOLD)
 		AddDropdownUnit(dropdown, COPPER_PER_SILVER)
 		AddDropdownUnit(dropdown, 1)
-		dropdown:SetValue(self.unit)
+		dropdown:SetValue(self.unit or addon.core.db.profile.defaultUnit)
 		dropdown:SetCallback("OnValueChanged", function(_, _, key)
 			self.unit = key
 		end)
@@ -78,7 +104,7 @@ end
 
 function PayoutSetupFramePrototype:CreateStartButton()
 	local button = AceGUI:Create("Button")
-	button:SetText(HuokanPayout.L.start_payout)
+	button:SetText(L.start_payout)
 	button:SetCallback("OnClick", function()
 		self.callbacks:Fire("StartPayout", self)
 		self:Hide()
@@ -87,7 +113,7 @@ function PayoutSetupFramePrototype:CreateStartButton()
 end
 
 function PayoutSetupFramePrototype:UpdateStartButton()
-	local success, err = pcall(function() HuokanPayout.PayoutQueue.ParseCSV(self.pasteBoxText) end)
+	local success, err = pcall(function() addon.PayoutQueue.ParseCSV(self.pasteBoxText) end)
 	self.startButton:SetDisabled(not success)
 	if not success then
 		self.frame:SetStatusText(err.message)
@@ -101,8 +127,10 @@ function PayoutSetupFramePrototype:Hide()
 		self.frame:Release()
 		self.frame = nil
 		self.pasteBox = nil
+		self.subjectBox = nil
 		self.unitSelection = nil
 		self.startButton = nil
+		self.subjectBoxText = nil
 	end
 end
 
@@ -111,7 +139,7 @@ function PayoutSetupFramePrototype:IsVisible()
 end
 
 function PayoutSetupFramePrototype:GetPayments()
-	local payments = HuokanPayout.PayoutQueue.ParseCSV(self.pasteBoxText)
+	local payments = addon.PayoutQueue.ParseCSV(self.pasteBoxText)
 	for player, copper in next, payments do
 		payments[player] = copper * self.unit
 	end

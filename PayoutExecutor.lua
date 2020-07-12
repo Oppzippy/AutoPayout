@@ -1,12 +1,14 @@
+local _, addon = ...
+
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 
 local PayoutExecutorPrototype = {}
 PayoutExecutorPrototype.__index = PayoutExecutorPrototype
-HuokanPayout.PayoutExecutor = PayoutExecutorPrototype
+addon.PayoutExecutor = PayoutExecutorPrototype
 
 function PayoutExecutorPrototype.Create(payoutQueue)
 	local payoutExecutor = setmetatable({}, PayoutExecutorPrototype)
-	HuokanPayout.EventHandler.Embed(payoutExecutor)
+	addon.EventHandler.Embed(payoutExecutor)
 	payoutExecutor.callbacks = CallbackHandler:New(payoutExecutor)
 	payoutExecutor.payoutQueue = payoutQueue
 	payoutExecutor.frame = CreateFrame("Frame")
@@ -36,7 +38,7 @@ function PayoutExecutorPrototype:SendNext()
 	if not next then self:Stop() return end
 	C_Timer.After(0, function()
 		SetSendMailMoney(next.copper)
-		SendMail(next.player, "TODO custom subject", "")
+		SendMail(next.player, next.subject, "")
 	end)
 end
 
@@ -49,12 +51,12 @@ function PayoutExecutorPrototype:MAIL_SEND_SUCCESS()
 	local payout = self.payoutQueue:Pop()
 	payout.isPaid = true
 	self.callbacks:Fire("MailSent", self, payout)
-	HuokanPayout:Debugf("%s sent", payout.player)
+	addon.core:Debugf("%s sent", payout.player)
 	self:SendNext()
 end
 
 function PayoutExecutorPrototype:MAIL_FAILED()
 	local payout = self.payoutQueue:Pop()
 	self.callbacks:Fire("MailFailed", self, payout)
-	HuokanPayout:Debugf("Mail send to %s failed", payout.player)
+	addon.core:Debugf("Mail send to %s failed", payout.player)
 end

@@ -1,38 +1,49 @@
+local _, addon = ...
+
 local AceAddon = LibStub("AceAddon-3.0")
 local AceLocale = LibStub("AceLocale-3.0")
+local AceDB = LibStub("AceDB-3.0")
+local AceConfig = LibStub("AceConfig-3.0")
+local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
-HuokanPayout = AceAddon:NewAddon("HuokanPayout", "AceConsole-3.0")
+local L = AceLocale:GetLocale("HuokanPayout")
+addon.L = L
 
-function HuokanPayout:OnInitialize()
-	self.L = AceLocale:GetLocale("HuokanPayout")
-	self:ResetState()
+local Core = AceAddon:NewAddon("HuokanPayout", "AceConsole-3.0")
+addon.core = Core
+
+function Core:OnInitialize()
+	self.db = AceDB:New("HuokanPayoutDB", addon.dbDefaults, true)
+	AceConfig:RegisterOptionsTable("HuokanPayout", addon.options)
+	AceConfigDialog:AddToBlizOptions("HuokanPayout", L.addon_name)
 	self:RegisterChatCommand("payout", "SlashPayout")
+	self:ResetState()
 end
 
-function HuokanPayout:ResetState()
+function Core:ResetState()
 	self:StopPayout()
 	self.payoutQueue = nil
 	if self.payoutSetupFrame then self.payoutSetupFrame:Hide() end
 	if self.payoutProgressFrame then self.payoutProgressFrame:Hide() end
 
-	self.payoutSetupFrame = HuokanPayout.PayoutSetupFrame.Create()
+	self.payoutSetupFrame = addon.PayoutSetupFrame.Create()
 	self.payoutSetupFrame.RegisterCallback(self, "StartPayout", "ShowPayoutProgressFrame")
 
-	self.payoutProgressFrame = HuokanPayout.PayoutProgressFrame.Create()
+	self.payoutProgressFrame = addon.PayoutProgressFrame.Create()
 	self.payoutProgressFrame.RegisterCallback(self, "StartPayout")
 	self.payoutProgressFrame.RegisterCallback(self, "Done", "ResetState")
 end
 
-function HuokanPayout:Debug(...)
+function Core:Debug(...)
 	-- TODO add developer mode toggle
 	self:Print(...)
 end
 
-function HuokanPayout:Debugf(...)
+function Core:Debugf(...)
 	self:Printf(...)
 end
 
-function HuokanPayout:SlashPayout(args)
+function Core:SlashPayout(args)
 	if args == "" then
 		if not self.payoutQueue then
 			if self.payoutSetupFrame:IsVisible() then
@@ -50,24 +61,24 @@ function HuokanPayout:SlashPayout(args)
 	end
 end
 
-function HuokanPayout:ShowSetupPayoutFrame()
+function Core:ShowSetupPayoutFrame()
 	self.payoutSetupFrame:Show()
 end
 
-function HuokanPayout:HideSetupPayoutFrame()
+function Core:HideSetupPayoutFrame()
 	self.PayoutSetupFrame:Hide()
 end
 
-function HuokanPayout:ShowPayoutProgressFrame(_, frame)
+function Core:ShowPayoutProgressFrame(_, frame)
 	local payments = frame:GetPayments()
 	local success, err = pcall(function()
-		self.payoutQueue = HuokanPayout.PayoutQueue.Create(payments)
+		self.payoutQueue = addon.PayoutQueue.Create(payments, frame:GetSubject())
 	end)
 	if not success then self:Printf("Error parsing payments: %s", err) end
 	self.payoutProgressFrame:Show(self.payoutQueue)
 end
 
-function HuokanPayout:ShowInProgressPayout(_, frame)
+function Core:ShowInProgressPayout(_, frame)
 	if self.payoutQueue then
 		self.payoutProgressFrame:Show(self.payoutQueue)
 	else
@@ -75,17 +86,17 @@ function HuokanPayout:ShowInProgressPayout(_, frame)
 	end
 end
 
-function HuokanPayout:StartPayout()
+function Core:StartPayout()
 	if not self.payoutQueue then error("Tried to start payout with no payout queue") end
 	if not self.payoutExecutor then
-		self.payoutExecutor = HuokanPayout.PayoutExecutor.Create(self.payoutQueue)
+		self.payoutExecutor = addon.PayoutExecutor.Create(self.payoutQueue)
 		self.payoutExecutor.RegisterCallback(self, "MailSent")
 		self.payoutExecutor.RegisterCallback(self, "Stop", "StopPayout")
 	end
 	self.payoutExecutor:Start()
 end
 
-function HuokanPayout:StopPayout()
+function Core:StopPayout()
 	if self.payoutExecutor then
 		self.payoutExecutor:Destroy()
 		self.payoutExecutor = nil
@@ -93,6 +104,6 @@ function HuokanPayout:StopPayout()
 	end
 end
 
-function HuokanPayout:MailSent(_, _, payout)
+function Core:MailSent(_, _, payout)
 	self.payoutProgressFrame:MarkPaid(payout.player)
 end

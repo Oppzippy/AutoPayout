@@ -4,9 +4,11 @@
 ## Author: Oppzippy
 ## Version: @project-version@
 ## OptionalDeps: Ace3
+## SavedVariables: HuokanPayoutDB
 
 Locales\locales.xml
 Core.lua
+Options.lua
 PayoutQueue.lua
 PayoutExecutor.lua
 EventHandler.lua

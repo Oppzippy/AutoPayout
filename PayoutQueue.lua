@@ -1,7 +1,10 @@
+local _, addon = ...
+local L = addon.L
+
 local PayoutQueuePrototype = {}
 PayoutQueuePrototype.__index = PayoutQueuePrototype
 
-HuokanPayout.PayoutQueue = PayoutQueuePrototype
+addon.PayoutQueue = PayoutQueuePrototype
 
 local function FormatPlayerName(name)
 	return name:sub(1, 1):upper() .. name:sub(2):lower()
@@ -18,20 +21,21 @@ function PayoutQueuePrototype.ParseCSV(csv)
 			if gold then
 				map[player] = gold
 			else
-				error({message = HuokanPayout.L.not_assigned_gold_value:format(player)})
+				error({message = L.not_assigned_gold_value:format(player)})
 			end
 		end
 	end
 	return map
 end
 
-function PayoutQueuePrototype.Create(payments)
+function PayoutQueuePrototype.Create(payments, subject)
 	local payoutQueue = setmetatable({}, PayoutQueuePrototype)
 	payoutQueue.payments = {}
 	for player, copper in next, payments do
 		payoutQueue.payments[#payoutQueue.payments+1] = {
 			player = player,
 			copper = copper,
+			subject = subject,
 		}
 	end
 	payoutQueue.index = 1

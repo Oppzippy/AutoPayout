@@ -1,9 +1,12 @@
+local _, addon = ...
+
 local AceGUI = LibStub("AceGUI-3.0")
 local CallbackHandler = LibStub("CallbackHandler-1.0")
+local L = addon.L
 
 local PayoutProgressFramePrototype = {}
 PayoutProgressFramePrototype.__index = PayoutProgressFramePrototype
-HuokanPayout.PayoutProgressFrame = PayoutProgressFramePrototype
+addon.PayoutProgressFrame = PayoutProgressFramePrototype
 
 local DEFAULT_IMAGE = "Interface\\RAIDFRAME\\ReadyCheck-Waiting"
 local PAID_IMAGE = "Interface\\RAIDFRAME\\ReadyCheck-Ready"
@@ -37,7 +40,7 @@ function PayoutProgressFramePrototype:CreateFrame()
 	frame:EnableResize(false)
 	frame:SetLayout("Flow")
 
-	frame:SetTitle(HuokanPayout.L.payout)
+	frame:SetTitle(L.payout)
 
 	local frames = self.frames
 
@@ -83,7 +86,7 @@ end
 
 function PayoutProgressFramePrototype:CreateStartButton()
 	local button = AceGUI:Create("Button")
-	button:SetText(HuokanPayout.L.start)
+	button:SetText(L.start)
 	button:SetCallback("OnClick", function()
 		if not self.isPayoutInProgress then
 			self:SetStartButtonState(true)
@@ -98,13 +101,13 @@ end
 
 function PayoutProgressFramePrototype:SetStartButtonState(isDown)
 	self.isPayoutInProgress = isDown
-	self.frames.startButton:SetText(isDown and HuokanPayout.L.pause or HuokanPayout.L.start)
-	self.frames.frame:SetStatusText(isDown and HuokanPayout.L.payout_in_progress or "")
+	self.frames.startButton:SetText(isDown and L.pause or L.start)
+	self.frames.frame:SetStatusText(isDown and L.payout_in_progress or "")
 end
 
 function PayoutProgressFramePrototype:CreateDoneButton()
 	local button = AceGUI:Create("Button")
-	button:SetText(HuokanPayout.L.done)
+	button:SetText(L.done)
 	button:SetCallback("OnClick", function()
 		self.callbacks:Fire("Done", self)
 	end)

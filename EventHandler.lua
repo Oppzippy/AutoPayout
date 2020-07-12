@@ -1,6 +1,8 @@
+local _, addon = ...
+
 local EventHandler = {}
 
-HuokanPayout.EventHandler = EventHandler
+addon.EventHandler = EventHandler
 
 local frame = CreateFrame("Frame")
 local callbacks = {}
