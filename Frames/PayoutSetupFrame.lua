@@ -50,7 +50,7 @@ end
 
 function PayoutSetupFramePrototype:CreateSubjectBox()
 	local editBox = AceGUI:Create("EditBox")
-	editBox:SetText(self.subjectBoxText or addon.core.db.profile.defaultSubject)
+	editBox:SetText(self:GetSubject())
 	editBox:SetLabel(L.subject)
 	editBox:SetMaxLetters(64)
 	editBox:SetCallback("OnEnterPressed", function(_, _, text)
@@ -94,12 +94,16 @@ do
 		AddDropdownUnit(dropdown, COPPER_PER_GOLD)
 		AddDropdownUnit(dropdown, COPPER_PER_SILVER)
 		AddDropdownUnit(dropdown, 1)
-		dropdown:SetValue(self.unit or addon.core.db.profile.defaultUnit)
+		dropdown:SetValue(self:GetUnit())
 		dropdown:SetCallback("OnValueChanged", function(_, _, key)
 			self.unit = key
 		end)
 		return dropdown
 	end
+end
+
+function PayoutSetupFramePrototype:GetUnit()
+	return self.unit or addon.core.db.profile.defaultUnit
 end
 
 function PayoutSetupFramePrototype:CreateStartButton()
@@ -141,7 +145,7 @@ end
 function PayoutSetupFramePrototype:GetPayments()
 	local payments = addon.PayoutQueue.ParseCSV(self.pasteBoxText)
 	for player, copper in next, payments do
-		payments[player] = copper * self.unit
+		payments[player] = copper * self:GetUnit()
 	end
 	return payments
 end
