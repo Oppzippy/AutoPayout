@@ -35,5 +35,6 @@ addon.dbDefaults = {
 	profile = {
 		defaultSubject = "",
 		defaultUnit = COPPER_PER_GOLD,
+		debug = false,
 	}
 }

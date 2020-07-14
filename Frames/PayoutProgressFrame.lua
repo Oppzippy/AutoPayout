@@ -73,7 +73,7 @@ function PayoutProgressFramePrototype:UpdateProgressList()
 		local label = AceGUI:Create("Label")
 		label:SetText(string.format("%s - %s", player, GetCoinTextureString(copper)))
 		if type(isPaid) == "boolean" then
-			label:SetImage(PAID_IMAGE or UNPAID_IMAGE)
+			label:SetImage(isPaid and PAID_IMAGE or UNPAID_IMAGE)
 		else
 			label:SetImage(DEFAULT_IMAGE)
 		end

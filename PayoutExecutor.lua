@@ -80,4 +80,5 @@ function PayoutExecutorPrototype:MAIL_FAILED()
 	payout.isPaid = false
 	self.callbacks:Fire("MailFailed", self, payout)
 	addon.core:Debugf("Mail send to %s failed", payout.player)
+	self:Stop()
 end

@@ -35,12 +35,15 @@ function Core:ResetState()
 end
 
 function Core:Debug(...)
-	-- TODO add developer mode toggle
-	self:Print(...)
+	if self.db.profile.debug then
+		self:Print(...)
+	end
 end
 
 function Core:Debugf(...)
-	self:Printf(...)
+	if self.db.profile.debug then
+		self:Printf(...)
+	end
 end
 
 function Core:SlashPayout(args)
