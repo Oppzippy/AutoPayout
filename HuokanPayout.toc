@@ -12,4 +12,5 @@ Options.lua
 PayoutQueue.lua
 PayoutExecutor.lua
 EventHandler.lua
+CSV.lua
 Frames\include.xml

@@ -25,10 +25,16 @@ function Core:ResetState()
 	self.payoutQueue = nil
 	if self.payoutSetupFrame then self.payoutSetupFrame:Hide() end
 	if self.payoutProgressFrame then self.payoutProgressFrame:Hide() end
+	self:CreatePayoutSetupFrame()
+	self.payoutProgressFrame = nil
+end
 
+function Core:CreatePayoutSetupFrame()
 	self.payoutSetupFrame = addon.PayoutSetupFrame.Create()
 	self.payoutSetupFrame.RegisterCallback(self, "StartPayout", "ShowPayoutProgressFrame")
+end
 
+function Core:CreatePayoutProgressFrame()
 	self.payoutProgressFrame = addon.PayoutProgressFrame.Create()
 	self.payoutProgressFrame.RegisterCallback(self, "StartPayout")
 	self.payoutProgressFrame.RegisterCallback(self, "Done", "ResetState")
@@ -78,6 +84,9 @@ function Core:ShowPayoutProgressFrame(_, frame)
 		self.payoutQueue = addon.PayoutQueue.Create(payments, frame:GetSubject())
 	end)
 	if not success then self:Printf("Error parsing payments: %s", err) end
+	self.payoutSetupFrame = nil
+	self:CreatePayoutProgressFrame()
+	self.payoutProgressFrame:SetUnit(frame:GetUnit())
 	self.payoutProgressFrame:Show(self.payoutQueue)
 end
 
@@ -105,13 +114,14 @@ function Core:StopPayout()
 		self.payoutExecutor:Destroy()
 		self.payoutExecutor = nil
 		self.payoutProgressFrame:SetStartButtonState(false)
+		self.payoutProgressFrame:UpdateCSV()
 	end
 end
 
 function Core:MailSent(_, _, payout)
-	self.payoutProgressFrame:MarkPaid(payout.player)
+	self.payoutProgressFrame:MarkPaid(payout)
 end
 
 function Core:MailFailed(_, _, payout)
-	self.payoutProgressFrame:MarkUnpaid(payout.player)
+	self.payoutProgressFrame:MarkUnpaid(payout)
 end

@@ -108,7 +108,7 @@ end
 
 function PayoutSetupFramePrototype:CreateStartButton()
 	local button = AceGUI:Create("Button")
-	button:SetText(L.start_payout)
+	button:SetText(L.next)
 	button:SetCallback("OnClick", function()
 		self.callbacks:Fire("StartPayout", self)
 		self:Hide()
@@ -134,7 +134,6 @@ function PayoutSetupFramePrototype:Hide()
 		self.subjectBox = nil
 		self.unitSelection = nil
 		self.startButton = nil
-		self.subjectBoxText = nil
 	end
 end
 
@@ -143,9 +142,13 @@ function PayoutSetupFramePrototype:IsVisible()
 end
 
 function PayoutSetupFramePrototype:GetPayments()
-	local payments = addon.PayoutQueue.ParseCSV(self.pasteBoxText)
-	for player, copper in next, payments do
-		payments[player] = copper * self:GetUnit()
+	local csv = addon.PayoutQueue.ParseCSV(self.pasteBoxText)
+	local payments = {}
+	for i, payment in ipairs(csv) do
+		payments[i] = {
+			player = payment.player,
+			copper = payment.copper * self:GetUnit(),
+		}
 	end
 	return payments
 end

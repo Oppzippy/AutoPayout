@@ -20,7 +20,6 @@ function PayoutExecutorPrototype:Destroy()
 end
 
 function PayoutExecutorPrototype:Start()
-	self:RegisterEvent("MAIL_SHOW")
 	self:RegisterEvent("MAIL_SEND_SUCCESS")
 	self:RegisterEvent("MAIL_FAILED")
 	self:SendNext()
@@ -28,7 +27,6 @@ end
 
 function PayoutExecutorPrototype:Stop()
 	self.callbacks:Fire("Stop")
-	self:UnregisterEvent("MAIL_SHOW")
 	self:UnregisterEvent("MAIL_SEND_SUCCESS")
 	self:UnregisterEvent("MAIL_FAILED")
 end
@@ -60,11 +58,6 @@ function PayoutExecutorPrototype:CanSend(payout)
 		return false
 	end
 	return true
-end
-
-function PayoutExecutorPrototype:MAIL_SHOW()
-	-- TODO this doesn't work. Maybe a different event or a longer delay?
-	self:SendNext()
 end
 
 function PayoutExecutorPrototype:MAIL_SEND_SUCCESS()

@@ -19,4 +19,5 @@ globals = {
 	"C_Timer",
 	"GetMoney",
 	"UnitIsUnit",
+	"MailFrame",
 }

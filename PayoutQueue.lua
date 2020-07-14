@@ -11,54 +11,58 @@ local function FormatPlayerName(name)
 end
 
 function PayoutQueuePrototype.ParseCSV(csv)
-	local map = {}
+	local payments = {}
 	local lines = { strsplit("\n", csv) }
 	for _, line in ipairs(lines) do
-		local player, gold = strsplit(",", line)
+		local player, copper = strsplit(",", line)
 		player = FormatPlayerName(player)
-		gold = tonumber(gold)
+		copper = tonumber(copper)
 		if #player > 0 then
-			if gold then
-				map[player] = gold
+			if copper then
+				payments[#payments+1] = {
+					copper = copper,
+					player = player,
+				}
 			else
 				error({message = L.not_assigned_gold_value:format(player)})
 			end
 		end
 	end
-	return map
+	return payments
 end
 
 function PayoutQueuePrototype.Create(payments, subject)
 	local payoutQueue = setmetatable({}, PayoutQueuePrototype)
-	payoutQueue.payments = {}
-	for player, copper in next, payments do
-		payoutQueue.payments[#payoutQueue.payments+1] = {
-			player = player,
-			copper = copper,
+	payoutQueue.payouts = {}
+	for i, payment in ipairs(payments) do
+		payoutQueue.payouts[i] = {
+			player = payment.player,
+			copper = payment.copper,
 			subject = subject,
+			id = i,
 		}
 	end
 	payoutQueue.index = 1
 	return payoutQueue
 end
 
-function PayoutQueuePrototype:IteratePayments()
+function PayoutQueuePrototype:IteratePayouts()
 	local i = 1
 	return function()
-		local payment = self.payments[i]
+		local payment = self.payouts[i]
 		if payment then
 			i = i + 1
-			return payment.player, payment.copper, payment.isPaid
+			return payment
 		end
 	end
 end
 
 function PayoutQueuePrototype:Peek()
-	return self.payments[self.index]
+	return self.payouts[self.index]
 end
 
 function PayoutQueuePrototype:Pop()
-	local payment = self.payments[self.index]
+	local payment = self.payouts[self.index]
 	self.index = self.index + 1
 	return payment
 end

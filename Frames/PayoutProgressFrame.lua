@@ -19,13 +19,18 @@ function PayoutProgressFramePrototype.Create()
 	return frame
 end
 
+function PayoutProgressFramePrototype:GetUnit()
+	return self.unit or addon.core.db.profile.defaultUnit
+end
+
+function PayoutProgressFramePrototype:SetUnit(unit)
+	self.unit = unit
+end
+
 function PayoutProgressFramePrototype:Show(payoutQueue)
 	self.payoutQueue = payoutQueue
 
-	local frames = self.frames
-	frames.frame = self:CreateFrame()
-	frames.scrollContainer, frames.scrollFrame = self:CreateDetailedProgressList()
-	frames.frame:AddChild(frames.scrollContainer)
+	self.frames.frame = self:CreateFrame()
 
 	self:UpdateProgressList()
 end
@@ -52,6 +57,12 @@ function PayoutProgressFramePrototype:CreateFrame()
 	frames.doneButton:SetRelativeWidth(0.5)
 	frame:AddChild(frames.doneButton)
 
+	frames.scrollContainer, frames.scrollFrame = self:CreateDetailedProgressList()
+	frame:AddChild(frames.scrollContainer)
+
+	frames.csvBox = self:CreateCSVBox()
+	frame:AddChild(frames.csvBox)
+
 	return frame
 end
 
@@ -69,18 +80,18 @@ end
 function PayoutProgressFramePrototype:UpdateProgressList()
 	self.frames.scrollFrame:ReleaseChildren()
 	self.frames.detailedPayoutListingLabels = {}
-	for player, copper, isPaid in self.payoutQueue:IteratePayments() do
+	for payout in self.payoutQueue:IteratePayouts() do
 		local label = AceGUI:Create("Label")
-		label:SetText(string.format("%s - %s", player, GetCoinTextureString(copper)))
-		if type(isPaid) == "boolean" then
-			label:SetImage(isPaid and PAID_IMAGE or UNPAID_IMAGE)
+		label:SetText(string.format("%s - %s", payout.player, GetCoinTextureString(payout.copper)))
+		if type(payout.isPaid) == "boolean" then
+			label:SetImage(payout.isPaid and PAID_IMAGE or UNPAID_IMAGE)
 		else
 			label:SetImage(DEFAULT_IMAGE)
 		end
 		label:SetFullWidth(true)
 		label:SetJustifyV("CENTER")
 		self.frames.scrollFrame:AddChild(label)
-		self.frames.detailedPayoutListingLabels[player] = label
+		self.frames.detailedPayoutListingLabels[payout.id] = label
 	end
 end
 
@@ -89,8 +100,12 @@ function PayoutProgressFramePrototype:CreateStartButton()
 	button:SetText(L.start)
 	button:SetCallback("OnClick", function()
 		if not self.isPayoutInProgress then
-			self:SetStartButtonState(true)
-			self.callbacks:Fire("StartPayout", self)
+			if MailFrame:IsVisible() then
+				self:SetStartButtonState(true)
+				self.callbacks:Fire("StartPayout", self)
+			else
+				addon.core:Print(L.error_must_be_at_mailbox)
+			end
 		else
 			self:SetStartButtonState(false)
 			self.callbacks:Fire("StopPayout", self)
@@ -114,6 +129,34 @@ function PayoutProgressFramePrototype:CreateDoneButton()
 	return button
 end
 
+function PayoutProgressFramePrototype:CreateCSVBox()
+	local editBox = AceGUI:Create("MultiLineEditBox")
+	editBox:SetLabel(L.unsent_mail)
+	editBox:SetText(self.csv or "")
+	editBox:SetFullWidth(true)
+	editBox:SetFullHeight(true)
+	editBox:SetCallback("OnTextChanged", function()
+		editBox:SetText(self.csv or "")
+	end)
+	return editBox
+end
+
+function PayoutProgressFramePrototype:UpdateCSV()
+	local t = self:GetUnpaidTable()
+	self.csv = addon.CSV.ToCSV(t)
+	self.frames.csvBox:SetText(self.csv)
+end
+
+function PayoutProgressFramePrototype:GetUnpaidTable()
+	local t = {}
+	for payout in self.payoutQueue:IteratePayouts() do
+		if not payout.isPaid then
+			t[#t+1] = { payout.player, payout.copper / self.unit }
+		end
+	end
+	return t
+end
+
 function PayoutProgressFramePrototype:Hide()
 	if self.frames.frame then
 		AceGUI:Release(self.frames.frame)
@@ -125,14 +168,14 @@ function PayoutProgressFramePrototype:IsVisible()
 	return self.frames.frame ~= nil
 end
 
-function PayoutProgressFramePrototype:MarkPaid(player)
-	local label = self.frames.detailedPayoutListingLabels[player]
+function PayoutProgressFramePrototype:MarkPaid(payout)
+	local label = self.frames.detailedPayoutListingLabels[payout.id]
 	if not label then error("Tried to change paid status of nonexistent label") end
 	label:SetImage(PAID_IMAGE)
 end
 
-function PayoutProgressFramePrototype:MarkUnpaid(player)
-	local label = self.frames.detailedPayoutListingLabels[player]
+function PayoutProgressFramePrototype:MarkUnpaid(payout)
+	local label = self.frames.detailedPayoutListingLabels[payout.id]
 	if not label then error("Tried to change paid status of nonexistent label") end
 	label:SetImage(UNPAID_IMAGE)
 end
