@@ -131,7 +131,7 @@ function PayoutProgressFramePrototype:MarkPaid(player)
 	label:SetImage(PAID_IMAGE)
 end
 
-function PayoutProgressFramePrototype:MarkError(player)
+function PayoutProgressFramePrototype:MarkUnpaid(player)
 	local label = self.frames.detailedPayoutListingLabels[player]
 	if not label then error("Tried to change paid status of nonexistent label") end
 	label:SetImage(UNPAID_IMAGE)

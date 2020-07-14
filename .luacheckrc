@@ -17,4 +17,6 @@ globals = {
 	"SendMail",
 	"SetSendMailMoney",
 	"C_Timer",
+	"GetMoney",
+	"UnitIsUnit",
 }

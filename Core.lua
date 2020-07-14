@@ -91,6 +91,7 @@ function Core:StartPayout()
 	if not self.payoutExecutor then
 		self.payoutExecutor = addon.PayoutExecutor.Create(self.payoutQueue)
 		self.payoutExecutor.RegisterCallback(self, "MailSent")
+		self.payoutExecutor.RegisterCallback(self, "MailFailed")
 		self.payoutExecutor.RegisterCallback(self, "Stop", "StopPayout")
 	end
 	self.payoutExecutor:Start()
@@ -106,4 +107,8 @@ end
 
 function Core:MailSent(_, _, payout)
 	self.payoutProgressFrame:MarkPaid(payout.player)
+end
+
+function Core:MailFailed(_, _, payout)
+	self.payoutProgressFrame:MarkUnpaid(payout.player)
 end

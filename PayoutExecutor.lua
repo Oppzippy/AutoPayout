@@ -36,10 +36,30 @@ end
 function PayoutExecutorPrototype:SendNext()
 	local next = self.payoutQueue:Peek()
 	if not next then self:Stop() return end
-	C_Timer.After(0, function()
-		SetSendMailMoney(next.copper)
-		SendMail(next.player, next.subject, "")
-	end)
+	if self:CanSend(next) then
+		C_Timer.After(0, function()
+			SetSendMailMoney(next.copper)
+			SendMail(next.player, next.subject, "")
+		end)
+	else
+		next.isPaid = false
+		self.callbacks:Fire("MailFailed", self, next)
+		self.payoutQueue:Pop()
+		self:SendNext()
+	end
+end
+
+function PayoutExecutorPrototype:CanSend(payout)
+	if UnitIsUnit(payout.player, "player") then
+		-- Can not send mail to yourself
+		addon.core:Debug("You can not send mail to yourself")
+		return false
+	end
+	if payout.copper + 30 > GetMoney() then -- 30c postage fee
+		addon.core:Debugf("Not enough gold: %s should get %f", payout.player, payout.copper)
+		return false
+	end
+	return true
 end
 
 function PayoutExecutorPrototype:MAIL_SHOW()
@@ -57,6 +77,7 @@ end
 
 function PayoutExecutorPrototype:MAIL_FAILED()
 	local payout = self.payoutQueue:Pop()
+	payout.isPaid = false
 	self.callbacks:Fire("MailFailed", self, payout)
 	addon.core:Debugf("Mail send to %s failed", payout.player)
 end
