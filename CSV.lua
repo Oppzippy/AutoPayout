@@ -13,9 +13,9 @@ end
 
 function CSV.ToTable(csv)
 	local t = {}
-	local lines = { strsplit(csv, "\n") }
+	local lines = { strsplit("\n", csv) }
 	for i, line in ipairs(lines) do
-		t[i] = { strsplit(line, ",") }
+		t[i] = { strsplit(",", line) }
 	end
 	return t
 end
