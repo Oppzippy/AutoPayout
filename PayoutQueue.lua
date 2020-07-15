@@ -6,16 +6,11 @@ PayoutQueuePrototype.__index = PayoutQueuePrototype
 
 addon.PayoutQueue = PayoutQueuePrototype
 
-local function FormatPlayerName(name)
-	return name:sub(1, 1):upper() .. name:sub(2):lower()
-end
-
 function PayoutQueuePrototype.ParseCSV(csv)
 	local payments = {}
 	local lines = { strsplit("\n", csv) }
 	for _, line in ipairs(lines) do
 		local player, copper = strsplit(",", line)
-		player = FormatPlayerName(player)
 		copper = tonumber(copper)
 		if #player > 0 then
 			if not copper then
