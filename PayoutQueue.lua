@@ -18,13 +18,15 @@ function PayoutQueuePrototype.ParseCSV(csv)
 		player = FormatPlayerName(player)
 		copper = tonumber(copper)
 		if #player > 0 then
-			if copper and copper > 0 then
+			if not copper then
+				error({message = L.not_assigned_gold_value:format(player)})
+			elseif copper < 0 then
+				error({message = L.can_not_assign_negative_gold:format(player)})
+			elseif copper > 0 then
 				payments[#payments+1] = {
 					copper = copper,
 					player = player,
 				}
-			else
-				error({message = L.not_assigned_gold_value:format(player)})
 			end
 		end
 	end

@@ -19,6 +19,7 @@ L.done = "Done"
 L.payout_in_progress = "Payout in progress. Please keep the mailbox open."
 L.unsent_mail = "Unsent Mail"
 L.error_must_be_at_mailbox = "You must be at a mailbox to start the payout."
+L.can_not_assign_negative_gold = "You can not send negative gold to %s."
 
 L.default_subject = "Default Subject"
 L.default_unit = "Default Unit"
