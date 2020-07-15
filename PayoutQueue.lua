@@ -18,7 +18,7 @@ function PayoutQueuePrototype.ParseCSV(csv)
 		player = FormatPlayerName(player)
 		copper = tonumber(copper)
 		if #player > 0 then
-			if copper then
+			if copper and copper > 0 then
 				payments[#payments+1] = {
 					copper = copper,
 					player = player,
