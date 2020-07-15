@@ -31,10 +31,10 @@ function PayoutExecutorPrototype:Stop()
 	self:UnregisterEvent("MAIL_FAILED")
 end
 
-function PayoutExecutorPrototype:SendNext()
+function PayoutExecutorPrototype:SendNext(predictedMoney)
 	local next = self.payoutQueue:Peek()
 	if not next then self:Stop() return end
-	if self:CanSend(next) then
+	if self:CanSend(next, predictedMoney) then
 		C_Timer.After(0, function()
 			SetSendMailMoney(next.copper)
 			SendMail(next.player, next.subject, "")
@@ -47,13 +47,13 @@ function PayoutExecutorPrototype:SendNext()
 	end
 end
 
-function PayoutExecutorPrototype:CanSend(payout)
+function PayoutExecutorPrototype:CanSend(payout, predictedMoney)
 	if UnitIsUnit(payout.player, "player") then
 		-- Can not send mail to yourself
 		addon.core:Debug("You can not send mail to yourself")
 		return false
 	end
-	if payout.copper + 30 > GetMoney() then -- 30c postage fee
+	if payout.copper + 30 > (predictedMoney or GetMoney()) then -- 30c postage fee
 		addon.core:Debugf("Not enough gold: %s should get %f", payout.player, payout.copper)
 		return false
 	end
@@ -65,7 +65,9 @@ function PayoutExecutorPrototype:MAIL_SEND_SUCCESS()
 	payout.isPaid = true
 	self.callbacks:Fire("MailSent", self, payout)
 	addon.core:Debugf("%s sent", payout.player)
-	self:SendNext()
+	-- GetMoney doesnt update until another message is received from the server
+	local predictedMoney = GetMoney() - payout.copper
+	self:SendNext(predictedMoney)
 end
 
 function PayoutExecutorPrototype:MAIL_FAILED()
