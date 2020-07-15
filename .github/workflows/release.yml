@@ -1,0 +1,14 @@
+name: Release
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: sudo apt-get install lua-check
+      - run: luacheck .
+      - env:
+          GITHUB_OAUTH: ${{ secrets.GH_OAUTH }}
+        run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash
