@@ -43,7 +43,7 @@ function PayoutExecutorPrototype:SendNext(predictedMoney)
 		next.isPaid = false
 		self.callbacks:Fire("MailFailed", self, next)
 		self.payoutQueue:Pop()
-		self:SendNext()
+		self:SendNext(predictedMoney)
 	end
 end
 
