@@ -6,12 +6,18 @@ PayoutQueuePrototype.__index = PayoutQueuePrototype
 
 addon.PayoutQueue = PayoutQueuePrototype
 
+local function trim(s)
+	local trimmed = s:gsub("%s*(.-)%s*", "%1")
+	return trimmed
+end
+
 function PayoutQueuePrototype.ParseCSV(csv)
 	local payments = {}
 	local lines = { strsplit("\n", csv) }
 	for _, line in ipairs(lines) do
 		local player, copper = strsplit(",", line)
-		copper = tonumber(copper)
+		player = trim(player)
+		copper = tonumber(trim(copper))
 		if #player > 0 then
 			if not copper then
 				error({message = L.not_assigned_gold_value:format(player)})
