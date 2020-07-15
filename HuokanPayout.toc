@@ -6,6 +6,7 @@
 ## OptionalDeps: Ace3
 ## SavedVariables: HuokanPayoutDB
 
+libs.xml
 Locales\locales.xml
 Core.lua
 Options.lua
