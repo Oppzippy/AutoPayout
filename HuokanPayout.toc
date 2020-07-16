@@ -5,6 +5,7 @@
 ## Version: @project-version@
 ## OptionalDeps: Ace3
 ## SavedVariables: HuokanPayoutDB
+## X-Curse-Project-ID: 395826
 
 libs.xml
 Locales\locales.xml
