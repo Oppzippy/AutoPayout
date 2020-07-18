@@ -104,7 +104,7 @@ function PayoutProgressFramePrototype:CreateStartButton()
 				self:SetStartButtonState(true)
 				self.callbacks:Fire("StartPayout", self)
 			else
-				addon.core:Print(L.error_must_be_at_mailbox)
+				addon.core:Print(L.must_be_at_mailbox)
 			end
 		else
 			self:SetStartButtonState(false)
