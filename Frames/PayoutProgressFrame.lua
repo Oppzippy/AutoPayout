@@ -33,6 +33,7 @@ function PayoutProgressFramePrototype:Show(payoutQueue)
 	self.frames.frame = self:CreateFrame()
 
 	self:UpdateProgressList()
+	self:UpdateCSV()
 end
 
 function PayoutProgressFramePrototype:CreateFrame()
