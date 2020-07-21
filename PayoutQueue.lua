@@ -6,6 +6,8 @@ PayoutQueuePrototype.__index = PayoutQueuePrototype
 
 addon.PayoutQueue = PayoutQueuePrototype
 
+local COPPER_CAP = 99999999999 - 30 -- Subtract postage fee
+
 do
 	local function trim(s)
 		local trimmed = s:gsub("%s*(.-)%s*", "%1")
@@ -39,16 +41,39 @@ end
 function PayoutQueuePrototype.Create(payments, subject)
 	local payoutQueue = setmetatable({}, PayoutQueuePrototype)
 	payoutQueue.payouts = {}
-	for i, payment in ipairs(payments) do
-		payoutQueue.payouts[i] = {
-			player = payment.player,
-			copper = payment.copper,
-			subject = subject,
-			id = i,
-		}
+	for _, payment in ipairs(payments) do
+		payoutQueue:AddPayment(payment, subject)
 	end
 	payoutQueue.index = 1
 	return payoutQueue
+end
+
+function PayoutQueuePrototype:AddPayment(payment, subject, id)
+	local payments = self:SplitPayment(payment.copper)
+	for _, copper in ipairs(payments) do
+		local nextIndex = #self.payouts+1
+		self.payouts[nextIndex] = {
+			player = payment.player,
+			copper = copper,
+			subject = subject,
+			id = nextIndex,
+		}
+	end
+end
+
+function PayoutQueuePrototype:SplitPayment(copper)
+	local t = {}
+	local count = 0
+	while copper > 0 do
+		count = count + 1
+		local payoutCopper = copper
+		if payoutCopper > COPPER_CAP and count < 2 then
+			payoutCopper = COPPER_CAP
+		end
+		copper = copper - payoutCopper
+		t[#t+1] = payoutCopper
+	end
+	return t
 end
 
 function PayoutQueuePrototype:IteratePayouts()
