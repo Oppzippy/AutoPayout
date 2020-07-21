@@ -88,6 +88,7 @@ function Core:ShowPayoutProgressFrame(_, frame)
 	self:CreatePayoutProgressFrame()
 	self.payoutProgressFrame:SetUnit(frame:GetUnit())
 	self.payoutProgressFrame:Show(self.payoutQueue)
+	self.payoutProgressFrame.RegisterCallback(self, "StopPayout")
 end
 
 function Core:ShowInProgressPayout(_, frame)
@@ -104,7 +105,7 @@ function Core:StartPayout()
 		self.payoutExecutor = addon.PayoutExecutor.Create(self.payoutQueue)
 		self.payoutExecutor.RegisterCallback(self, "MailSent")
 		self.payoutExecutor.RegisterCallback(self, "MailFailed")
-		self.payoutExecutor.RegisterCallback(self, "Stop", "StopPayout")
+		self.payoutExecutor.RegisterCallback(self, "StopPayout")
 	end
 	self.payoutExecutor:Start()
 end

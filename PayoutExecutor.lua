@@ -26,7 +26,7 @@ function PayoutExecutorPrototype:Start()
 end
 
 function PayoutExecutorPrototype:Stop()
-	self.callbacks:Fire("Stop")
+	self.callbacks:Fire("StopPayout")
 	self:UnregisterEvent("MAIL_SEND_SUCCESS")
 	self:UnregisterEvent("MAIL_FAILED")
 end
