@@ -20,4 +20,6 @@ globals = {
 	"GetMoney",
 	"UnitIsUnit",
 	"MailFrame",
+	"date",
+	"GetServerTime",
 }

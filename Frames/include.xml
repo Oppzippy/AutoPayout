@@ -2,4 +2,5 @@
 ..\FrameXML\UI.xsd">
 	<Script file="PayoutSetupFrame.lua"/>
 	<Script file="PayoutProgressFrame.lua"/>
+	<Script file="HistoryFrame.lua"/>
 </Ui>

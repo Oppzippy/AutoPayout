@@ -3,9 +3,12 @@ if not L then return end
 
 L.addon_name = "Huokan Payout"
 
+L.date_time = "%Y-%m-%d %I:%M%p"
+
 L.payout_setup = "Payout Setup"
 L.payout = "Payout"
 L.payout_csv = "Payout CSV"
+L.payout_history = "Payout History"
 
 L.subject = "Subject"
 L.unit = "Unit"
@@ -16,6 +19,10 @@ L.next = "Next"
 L.start = "Start"
 L.pause = "Pause"
 L.done = "Done"
+L.input = "Input"
+L.output = "Output"
+
+
 L.payout_in_progress = "Payout in progress. Please keep the mailbox open."
 L.unsent_mail = "Unsent Mail"
 L.must_be_at_mailbox = "You must be at a mailbox to start the payout."

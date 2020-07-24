@@ -82,6 +82,10 @@ function PayoutSetupFramePrototype:CreatePasteBox()
 	return editBox
 end
 
+function PayoutSetupFramePrototype:GetCSV()
+	return self.pasteBoxText or ""
+end
+
 do
 	local function AddDropdownUnit(dropdown, copper)
 		dropdown:AddItem(copper, GetCoinTextureString(copper))

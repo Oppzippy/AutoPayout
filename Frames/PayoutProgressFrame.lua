@@ -33,7 +33,7 @@ function PayoutProgressFramePrototype:Show(payoutQueue)
 	self.frames.frame = self:CreateFrame()
 
 	self:UpdateProgressList()
-	self:UpdateCSV()
+	self:UpdateUnpaidCSV()
 end
 
 function PayoutProgressFramePrototype:CreateFrame()
@@ -143,10 +143,14 @@ function PayoutProgressFramePrototype:CreateCSVBox()
 	return editBox
 end
 
-function PayoutProgressFramePrototype:UpdateCSV()
+function PayoutProgressFramePrototype:UpdateUnpaidCSV()
 	local t = self:GetUnpaidTable()
 	self.csv = addon.CSV.ToCSV(t)
 	self.frames.csvBox:SetText(self.csv)
+end
+
+function PayoutProgressFramePrototype:GetUnpaidCSV()
+	return self.csv
 end
 
 function PayoutProgressFramePrototype:GetUnpaidTable()

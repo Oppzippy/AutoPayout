@@ -36,5 +36,6 @@ addon.dbDefaults = {
 		defaultSubject = "Payout",
 		defaultUnit = COPPER_PER_GOLD,
 		debug = false,
+		history = {},
 	}
 }

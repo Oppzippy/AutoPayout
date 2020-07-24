@@ -23,6 +23,7 @@ end
 function Core:ResetState()
 	self:StopPayout()
 	self.payoutQueue = nil
+	self.historyRecord = nil
 	if self.payoutSetupFrame then self.payoutSetupFrame:Hide() end
 	if self.payoutProgressFrame then self.payoutProgressFrame:Hide() end
 	self:CreatePayoutSetupFrame()
@@ -37,7 +38,13 @@ end
 function Core:CreatePayoutProgressFrame()
 	self.payoutProgressFrame = addon.PayoutProgressFrame.Create()
 	self.payoutProgressFrame.RegisterCallback(self, "StartPayout")
-	self.payoutProgressFrame.RegisterCallback(self, "Done", "ResetState")
+	self.payoutProgressFrame.RegisterCallback(self, "Done", "PayoutProgressFrameDone")
+end
+
+function Core:PayoutProgressFrameDone()
+	self.historyRecord.output = self.payoutProgressFrame:GetUnpaidCSV()
+	table.insert(self.db.profile.history, 1, self.historyRecord)
+	self:ResetState()
 end
 
 function Core:Debug(...)
@@ -67,7 +74,20 @@ function Core:SlashPayout(args)
 				self.payoutProgressFrame:Show(self.payoutQueue)
 			end
 		end
+	elseif args == "history" then
+		if not self.historyFrame then
+			self.historyFrame = addon.HistoryFrame.Create()
+			self.historyFrame:Show(self.db.profile.history)
+			self.historyFrame.RegisterCallback(self, "Close", "OnHistoryFrameClose")
+		else
+			self.historyFrame:Hide()
+			self.historyFrame = nil
+		end
 	end
+end
+
+function Core:OnHistoryFrameClose()
+	self.historyFrame = nil
 end
 
 function Core:ShowSetupPayoutFrame()
@@ -89,6 +109,11 @@ function Core:ShowPayoutProgressFrame(_, frame)
 	self.payoutProgressFrame:SetUnit(frame:GetUnit())
 	self.payoutProgressFrame:Show(self.payoutQueue)
 	self.payoutProgressFrame.RegisterCallback(self, "StopPayout")
+
+	self.historyRecord = {
+		timestamp = GetServerTime(),
+		input = frame:GetCSV(),
+	}
 end
 
 function Core:ShowInProgressPayout(_, frame)
@@ -115,7 +140,7 @@ function Core:StopPayout()
 		self.payoutExecutor:Destroy()
 		self.payoutExecutor = nil
 		self.payoutProgressFrame:SetStartButtonState(false)
-		self.payoutProgressFrame:UpdateCSV()
+		self.payoutProgressFrame:UpdateUnpaidCSV()
 	end
 end
 
