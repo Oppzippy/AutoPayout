@@ -32,16 +32,16 @@ end
 
 function Core:CreatePayoutSetupFrame()
 	self.payoutSetupFrame = addon.PayoutSetupFrame.Create()
-	self.payoutSetupFrame.RegisterCallback(self, "StartPayout", "ShowPayoutProgressFrame")
+	self.payoutSetupFrame.RegisterCallback(self, "OnStartPayout", "OnShowPayoutProgressFrame")
 end
 
 function Core:CreatePayoutProgressFrame()
 	self.payoutProgressFrame = addon.PayoutProgressFrame.Create()
-	self.payoutProgressFrame.RegisterCallback(self, "StartPayout")
-	self.payoutProgressFrame.RegisterCallback(self, "Done", "PayoutProgressFrameDone")
+	self.payoutProgressFrame.RegisterCallback(self, "DoStartPayout", "StartPayout")
+	self.payoutProgressFrame.RegisterCallback(self, "OnDone", "OnPayoutProgressFrameDone")
 end
 
-function Core:PayoutProgressFrameDone()
+function Core:OnPayoutProgressFrameDone()
 	self.historyRecord.output = self.payoutProgressFrame:GetUnpaidCSV()
 	table.insert(self.db.profile.history, 1, self.historyRecord)
 	self:ResetState()
@@ -78,7 +78,7 @@ function Core:SlashPayout(args)
 		if not self.historyFrame then
 			self.historyFrame = addon.HistoryFrame.Create()
 			self.historyFrame:Show(self.db.profile.history)
-			self.historyFrame.RegisterCallback(self, "Close", "OnHistoryFrameClose")
+			self.historyFrame.RegisterCallback(self, "OnClose", "OnHistoryFrameClose")
 		else
 			self.historyFrame:Hide()
 			self.historyFrame = nil
@@ -98,7 +98,7 @@ function Core:HideSetupPayoutFrame()
 	self.PayoutSetupFrame:Hide()
 end
 
-function Core:ShowPayoutProgressFrame(_, frame)
+function Core:OnShowPayoutProgressFrame(_, frame)
 	local payments = frame:GetPayments()
 	local success, err = pcall(function()
 		self.payoutQueue = addon.PayoutQueue.Create(payments, frame:GetSubject())
@@ -108,7 +108,7 @@ function Core:ShowPayoutProgressFrame(_, frame)
 	self:CreatePayoutProgressFrame()
 	self.payoutProgressFrame:SetUnit(frame:GetUnit())
 	self.payoutProgressFrame:Show(self.payoutQueue)
-	self.payoutProgressFrame.RegisterCallback(self, "StopPayout")
+	self.payoutProgressFrame.RegisterCallback(self, "DoStopPayout", "StopPayout")
 
 	self.historyRecord = {
 		timestamp = GetServerTime(),
@@ -128,9 +128,9 @@ function Core:StartPayout()
 	if not self.payoutQueue then error("Tried to start payout with no payout queue") end
 	if not self.payoutExecutor then
 		self.payoutExecutor = addon.PayoutExecutor.Create(self.payoutQueue)
-		self.payoutExecutor.RegisterCallback(self, "MailSent")
-		self.payoutExecutor.RegisterCallback(self, "MailFailed")
-		self.payoutExecutor.RegisterCallback(self, "StopPayout")
+		self.payoutExecutor.RegisterCallback(self, "OnMailSent")
+		self.payoutExecutor.RegisterCallback(self, "OnMailFailed")
+		self.payoutExecutor.RegisterCallback(self, "OnStopPayout", "StopPayout")
 	end
 	self.payoutExecutor:Start()
 end
@@ -144,10 +144,10 @@ function Core:StopPayout()
 	end
 end
 
-function Core:MailSent(_, _, payout)
+function Core:OnMailSent(_, _, payout)
 	self.payoutProgressFrame:MarkPaid(payout)
 end
 
-function Core:MailFailed(_, _, payout)
+function Core:OnMailFailed(_, _, payout)
 	self.payoutProgressFrame:MarkUnpaid(payout)
 end

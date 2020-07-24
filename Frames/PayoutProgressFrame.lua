@@ -103,13 +103,13 @@ function PayoutProgressFramePrototype:CreateStartButton()
 		if not self.isPayoutInProgress then
 			if MailFrame:IsVisible() then
 				self:SetStartButtonState(true)
-				self.callbacks:Fire("StartPayout", self)
+				self.callbacks:Fire("DoStartPayout", self)
 			else
 				addon.core:Print(L.must_be_at_mailbox)
 			end
 		else
 			self:SetStartButtonState(false)
-			self.callbacks:Fire("StopPayout", self)
+			self.callbacks:Fire("DoStopPayout", self)
 		end
 	end)
 	return button
@@ -125,7 +125,7 @@ function PayoutProgressFramePrototype:CreateDoneButton()
 	local button = AceGUI:Create("Button")
 	button:SetText(L.done)
 	button:SetCallback("OnClick", function()
-		self.callbacks:Fire("Done", self)
+		self.callbacks:Fire("OnDone", self)
 	end)
 	return button
 end

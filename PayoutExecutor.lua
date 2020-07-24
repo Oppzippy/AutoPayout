@@ -26,7 +26,7 @@ function PayoutExecutorPrototype:Start()
 end
 
 function PayoutExecutorPrototype:Stop()
-	self.callbacks:Fire("StopPayout")
+	self.callbacks:Fire("OnStopPayout")
 	self:UnregisterEvent("MAIL_SEND_SUCCESS")
 	self:UnregisterEvent("MAIL_FAILED")
 end
@@ -41,7 +41,7 @@ function PayoutExecutorPrototype:SendNext(predictedMoney)
 		end)
 	else
 		next.isPaid = false
-		self.callbacks:Fire("MailFailed", self, next)
+		self.callbacks:Fire("OnMailFailed", self, next)
 		self.payoutQueue:Pop()
 		self:SendNext(predictedMoney)
 	end
@@ -63,7 +63,7 @@ end
 function PayoutExecutorPrototype:MAIL_SEND_SUCCESS()
 	local payout = self.payoutQueue:Pop()
 	payout.isPaid = true
-	self.callbacks:Fire("MailSent", self, payout)
+	self.callbacks:Fire("OnMailSent", self, payout)
 	addon.core:Debugf("%s sent", payout.player)
 	-- GetMoney doesnt update until another message is received from the server
 	local predictedMoney = GetMoney() - payout.copper - 30
@@ -73,7 +73,7 @@ end
 function PayoutExecutorPrototype:MAIL_FAILED()
 	local payout = self.payoutQueue:Pop()
 	payout.isPaid = false
-	self.callbacks:Fire("MailFailed", self, payout)
+	self.callbacks:Fire("OnMailFailed", self, payout)
 	addon.core:Debugf("Mail send to %s failed", payout.player)
 	self:Stop()
 end

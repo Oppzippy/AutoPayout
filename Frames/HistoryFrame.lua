@@ -93,6 +93,6 @@ end
 function HistoryFramePrototype:Hide()
 	if self.frame then
 		self.frame:Release()
-		self.callbacks:Fire("Close")
+		self.callbacks:Fire("OnClose")
 	end
 end
