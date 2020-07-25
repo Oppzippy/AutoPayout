@@ -28,18 +28,29 @@ function PayoutExecutorPrototype:Stop()
 	self.stopTicker = C_Timer.NewTicker(0, function()
 		if not C_Mail.IsCommandPending() then
 			self.isPayoutInProgress = false
-			self.callbacks:Fire("OnStopPayout")
 			self:UnregisterEvent("MAIL_SEND_SUCCESS")
 			self:UnregisterEvent("MAIL_FAILED")
 			self.stopTicker:Cancel()
 			self.stopTicker = nil
+			self.callbacks:Fire("OnStopPayout")
 		end
 	end)
 end
 
+function PayoutExecutorPrototype:Halt()
+	self.isPayoutInProgress = false
+	self:UnregisterEvent("MAIL_SEND_SUCCESS")
+	self:UnregisterEvent("MAIL_FAILED")
+	self.callbacks:Fire("OnStopPayout")
+	if self.stopTicker then
+		self.stopTicker:Cancel()
+		self.stopTicker = nil
+	end
+end
+
 function PayoutExecutorPrototype:SendNext(predictedMoney)
 	local next = self.payoutQueue:Peek()
-	if not next then self:Stop() return end
+	if not next then self:Halt() return end
 	if self:CanSend(next, predictedMoney) then
 		C_Timer.After(0, function()
 			SetSendMailMoney(next.copper)
@@ -81,5 +92,5 @@ function PayoutExecutorPrototype:MAIL_FAILED()
 	payout.isPaid = false
 	self.callbacks:Fire("OnMailFailed", self, payout)
 	addon.core:Debugf("Mail send to %s failed", payout.player)
-	self:Stop()
+	self:Halt()
 end

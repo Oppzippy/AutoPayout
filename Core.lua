@@ -141,7 +141,7 @@ function Core:StartPayout()
 		self.payoutExecutor = addon.PayoutExecutor.Create(self.payoutQueue)
 		self.payoutExecutor.RegisterCallback(self, "OnMailSent")
 		self.payoutExecutor.RegisterCallback(self, "OnMailFailed")
-		self.payoutExecutor.RegisterCallback(self, "OnStopPayout", "StopPayout")
+		self.payoutExecutor.RegisterCallback(self, "OnStopPayout")
 	end
 	self.payoutExecutor:Start()
 end
@@ -149,7 +149,11 @@ end
 function Core:StopPayout()
 	if self.payoutExecutor then
 		self.payoutExecutor:Stop()
-		-- TODO delay setting to nil until the payoutExecutor is done cleaning up
+	end
+end
+
+function Core:OnStopPayout()
+	if self.payoutExecutor then
 		self.payoutExecutor = nil
 		self.payoutProgressFrame:SetStartButtonState(false)
 		self.payoutProgressFrame:UpdateUnpaidCSV()
