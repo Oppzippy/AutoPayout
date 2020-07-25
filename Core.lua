@@ -44,7 +44,18 @@ end
 function Core:OnPayoutProgressFrameDone()
 	self.historyRecord.output = self.payoutProgressFrame:GetUnpaidCSV()
 	table.insert(self.db.profile.history, 1, self.historyRecord)
+	self:WipeOldHistory()
 	self:ResetState()
+end
+
+function Core:WipeOldHistory()
+	local maxHistorySize = self.db.profile.maxHistorySize
+	local history = self.db.profile.history
+	if #history > maxHistorySize then
+		for i = maxHistorySize + 1, #history do
+			history[i] = nil
+		end
+	end
 end
 
 function Core:Debug(...)

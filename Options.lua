@@ -28,6 +28,17 @@ addon.options = {
 				[COPPER_PER_GOLD*1000] = GetCoinTextureString(COPPER_PER_GOLD * 1000),
 			},
 		},
+		maxHistorySize = {
+			name = L.max_history_size,
+			type = "range",
+			width = "full",
+			min = 0,
+			softMin = 1,
+			max = 500,
+			softMax = 100,
+			step = 1,
+			bigStep = 1,
+		},
 	},
 }
 
@@ -37,5 +48,6 @@ addon.dbDefaults = {
 		defaultUnit = COPPER_PER_GOLD,
 		debug = false,
 		history = {},
+		maxHistorySize = 20,
 	}
 }

@@ -30,3 +30,4 @@ L.can_not_assign_negative_gold = "You can not send negative gold to %s."
 
 L.default_subject = "Default Subject"
 L.default_unit = "Default Unit"
+L.max_history_size = "Maximum History Size"
