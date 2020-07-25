@@ -148,7 +148,8 @@ end
 
 function Core:StopPayout()
 	if self.payoutExecutor then
-		self.payoutExecutor:Destroy()
+		self.payoutExecutor:Stop()
+		-- TODO delay setting to nil until the payoutExecutor is done cleaning up
 		self.payoutExecutor = nil
 		self.payoutProgressFrame:SetStartButtonState(false)
 		self.payoutProgressFrame:UpdateUnpaidCSV()

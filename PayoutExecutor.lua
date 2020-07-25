@@ -15,20 +15,26 @@ function PayoutExecutorPrototype.Create(payoutQueue)
 	return payoutExecutor
 end
 
-function PayoutExecutorPrototype:Destroy()
-	self:UnregisterAllEvents()
-end
-
 function PayoutExecutorPrototype:Start()
+	self.isPayoutInProgress = true
 	self:RegisterEvent("MAIL_SEND_SUCCESS")
 	self:RegisterEvent("MAIL_FAILED")
 	self:SendNext()
 end
 
 function PayoutExecutorPrototype:Stop()
-	self.callbacks:Fire("OnStopPayout")
-	self:UnregisterEvent("MAIL_SEND_SUCCESS")
-	self:UnregisterEvent("MAIL_FAILED")
+	if self.stopTicker then return end
+
+	self.stopTicker = C_Timer.NewTicker(0, function()
+		if not C_Mail.IsCommandPending() then
+			self.isPayoutInProgress = false
+			self.callbacks:Fire("OnStopPayout")
+			self:UnregisterEvent("MAIL_SEND_SUCCESS")
+			self:UnregisterEvent("MAIL_FAILED")
+			self.stopTicker:Cancel()
+			self.stopTicker = nil
+		end
+	end)
 end
 
 function PayoutExecutorPrototype:SendNext(predictedMoney)

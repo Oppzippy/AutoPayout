@@ -22,4 +22,5 @@ globals = {
 	"MailFrame",
 	"date",
 	"GetServerTime",
+	"C_Mail",
 }
