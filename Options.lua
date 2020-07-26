@@ -13,14 +13,16 @@ addon.options = {
 	end,
 	args = {
 		defaultSubject = {
+			order = 1,
+			width = "full",
 			name = L.default_subject,
 			type = "input",
-			width = "full",
 		},
 		defaultUnit = {
+			order = 2,
+			width = "full",
 			name = L.default_unit,
 			type = "select",
-			width = "full",
 			values = {
 				[1] = GetCoinTextureString(1),
 				[COPPER_PER_SILVER] = GetCoinTextureString(COPPER_PER_SILVER),
@@ -29,13 +31,40 @@ addon.options = {
 			},
 		},
 		maxHistorySize = {
+			order = 3,
+			width = "full",
 			name = L.max_history_size,
 			type = "range",
-			width = "full",
 			min = 0,
 			softMin = 1,
 			max = 500,
 			softMax = 100,
+			step = 1,
+			bigStep = 1,
+		},
+		maxPayoutSizeInGold = {
+			order = 4,
+			width = 1.75,
+			name = L.max_payout_size_in_gold,
+			desc = L.max_payout_size_in_gold_desc,
+			type = "range",
+			min = 0.0001,
+			softMin = 1000,
+			max = 9999999.9969, -- Gold cap minus postage fee
+			softMax = 9999999.9969, -- Gold cap minus postage fee
+			step = 0.0001,
+			bigStep = 1,
+		},
+		maxPayoutSplits = {
+			order = 5,
+			width = 1.75,
+			name = L.max_payout_splits,
+			desc = L.max_payout_splits_desc,
+			type = "range",
+			min = 0,
+			softMin = 0,
+			max = 1000,
+			softMax = 9,
 			step = 1,
 			bigStep = 1,
 		},
@@ -49,5 +78,7 @@ addon.dbDefaults = {
 		debug = false,
 		history = {},
 		maxHistorySize = 20,
+		maxPayoutSizeInGold = 1000000,
+		maxPayoutSplits = 1,
 	}
 }

@@ -6,8 +6,6 @@ PayoutQueuePrototype.__index = PayoutQueuePrototype
 
 addon.PayoutQueue = PayoutQueuePrototype
 
-local COPPER_CAP = 99999999999 - 30 -- Subtract postage fee
-
 do
 	local function trim(s)
 		local trimmed = s:gsub("%s*(.-)%s*", "%1")
@@ -62,13 +60,16 @@ function PayoutQueuePrototype:AddPayment(payment, subject, id)
 end
 
 function PayoutQueuePrototype:SplitPayment(copper)
+	local copperCap = addon.core.db.profile.maxPayoutSizeInGold * COPPER_PER_GOLD
+	local maxSplits = addon.core.db.profile.maxPayoutSplits
+
 	local t = {}
 	local count = 0
 	while copper > 0 do
 		count = count + 1
 		local payoutCopper = copper
-		if payoutCopper > COPPER_CAP and count < 2 then
-			payoutCopper = COPPER_CAP
+		if payoutCopper > copperCap and count <= maxSplits then
+			payoutCopper = copperCap
 		end
 		copper = copper - payoutCopper
 		t[#t+1] = payoutCopper
