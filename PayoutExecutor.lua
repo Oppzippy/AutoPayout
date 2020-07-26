@@ -84,7 +84,9 @@ function PayoutExecutorPrototype:MAIL_SEND_SUCCESS()
 	addon.core:Debugf("%s sent", payout.player)
 	-- GetMoney doesnt update until another message is received from the server
 	local predictedMoney = GetMoney() - payout.copper - 30
-	self:SendNext(predictedMoney)
+	if not self.stopTicker then
+		self:SendNext(predictedMoney)
+	end
 end
 
 function PayoutExecutorPrototype:MAIL_FAILED()
@@ -92,5 +94,7 @@ function PayoutExecutorPrototype:MAIL_FAILED()
 	payout.isPaid = false
 	self.callbacks:Fire("OnMailFailed", self, payout)
 	addon.core:Debugf("Mail send to %s failed", payout.player)
-	self:Halt()
+	if not self.stopTicker then
+		self:Halt()
+	end
 end
