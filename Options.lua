@@ -14,9 +14,9 @@ addon.options = {
 	args = {
 		autoShow = {
 			order = 1,
+			width = "full",
 			name = L.automatically_show,
 			type = "toggle",
-			width = "full",
 		},
 		defaultSubject = {
 			order = 2,
