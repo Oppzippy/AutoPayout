@@ -18,6 +18,8 @@ function Core:OnInitialize()
 	AceConfigDialog:AddToBlizOptions("HuokanPayout", L.addon_name)
 	self:RegisterChatCommand("payout", "SlashPayout")
 	self:ResetState()
+	addon.EventHandler.Embed(self)
+	self:RegisterEvent("MAIL_SHOW")
 end
 
 function Core:ResetState()
@@ -67,6 +69,15 @@ end
 function Core:Debugf(...)
 	if self.db.profile.debug then
 		self:Printf(...)
+	end
+end
+
+function Core:MAIL_SHOW()
+	if not self.db.profile.autoShow then return end
+	if not self.payoutQueue and not self.payoutSetupFrame:IsVisible() then
+		self.payoutSetupFrame:Show()
+	elseif self.payoutProgressFrame and not self.payoutProgressFrame:IsVisible() then
+		self.payoutProgressFrame:Show(self.payoutQueue)
 	end
 end
 

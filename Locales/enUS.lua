@@ -28,6 +28,7 @@ L.unsent_mail = "Unsent Mail"
 L.must_be_at_mailbox = "You must be at a mailbox to start the payout."
 L.can_not_assign_negative_gold = "You can not send negative gold to %s."
 
+L.automatically_show = "Automatically show when opening mailbox"
 L.default_subject = "Default Subject"
 L.default_unit = "Default Unit"
 L.max_history_size = "Maximum History Size"
