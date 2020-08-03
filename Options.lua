@@ -85,7 +85,7 @@ addon.dbDefaults = {
 		history = {},
 		maxHistorySize = 20,
 		maxPayoutSizeInGold = 1000000,
-		maxPayoutSplits = 1,
+		maxPayoutSplits = 9,
 		autoShow = false,
 	}
 }
