@@ -6,7 +6,7 @@ local L = addon.L
 
 local PayoutProgressFramePrototype = {}
 PayoutProgressFramePrototype.__index = PayoutProgressFramePrototype
-addon.PayoutProgressFrame = PayoutProgressFramePrototype
+addon.PayoutProgressFramePrototype = PayoutProgressFramePrototype
 
 local DEFAULT_IMAGE = "Interface\\RAIDFRAME\\ReadyCheck-Waiting"
 local PAID_IMAGE = "Interface\\RAIDFRAME\\ReadyCheck-Ready"

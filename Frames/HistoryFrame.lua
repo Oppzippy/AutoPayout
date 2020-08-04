@@ -6,7 +6,7 @@ local L = addon.L
 
 local HistoryFramePrototype = {}
 HistoryFramePrototype.__index = HistoryFramePrototype
-addon.HistoryFrame = HistoryFramePrototype
+addon.HistoryFramePrototype = HistoryFramePrototype
 
 function HistoryFramePrototype.Create()
 	local frame = setmetatable({}, HistoryFramePrototype)

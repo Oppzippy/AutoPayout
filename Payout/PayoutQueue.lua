@@ -4,7 +4,7 @@ local L = addon.L
 local PayoutQueuePrototype = {}
 PayoutQueuePrototype.__index = PayoutQueuePrototype
 
-addon.PayoutQueue = PayoutQueuePrototype
+addon.PayoutQueuePrototype = PayoutQueuePrototype
 
 do
 	local function trim(s)

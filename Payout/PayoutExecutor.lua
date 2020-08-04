@@ -4,7 +4,7 @@ local CallbackHandler = LibStub("CallbackHandler-1.0")
 
 local PayoutExecutorPrototype = {}
 PayoutExecutorPrototype.__index = PayoutExecutorPrototype
-addon.PayoutExecutor = PayoutExecutorPrototype
+addon.PayoutExecutorPrototype = PayoutExecutorPrototype
 
 function PayoutExecutorPrototype.Create(payoutQueue)
 	local payoutExecutor = setmetatable({}, PayoutExecutorPrototype)

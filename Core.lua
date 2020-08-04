@@ -33,12 +33,12 @@ function Core:ResetState()
 end
 
 function Core:CreatePayoutSetupFrame()
-	self.payoutSetupFrame = addon.PayoutSetupFrame.Create()
+	self.payoutSetupFrame = addon.PayoutSetupFramePrototype.Create()
 	self.payoutSetupFrame.RegisterCallback(self, "OnStartPayout", "OnShowPayoutProgressFrame")
 end
 
 function Core:CreatePayoutProgressFrame()
-	self.payoutProgressFrame = addon.PayoutProgressFrame.Create()
+	self.payoutProgressFrame = addon.PayoutProgressFramePrototype.Create()
 	self.payoutProgressFrame.RegisterCallback(self, "DoStartPayout", "StartPayout")
 	self.payoutProgressFrame.RegisterCallback(self, "OnDone", "OnPayoutProgressFrameDone")
 end
@@ -98,7 +98,7 @@ function Core:SlashPayout(args)
 		end
 	elseif args == "history" then
 		if not self.historyFrame then
-			self.historyFrame = addon.HistoryFrame.Create()
+			self.historyFrame = addon.HistoryFramePrototype.Create()
 			self.historyFrame:Show(self.db.profile.history)
 			self.historyFrame.RegisterCallback(self, "OnClose", "OnHistoryFrameClose")
 		else
@@ -123,7 +123,7 @@ end
 function Core:OnShowPayoutProgressFrame(_, frame)
 	local payments = self:SplitPayments(frame:GetPayments())
 	local success, err = pcall(function()
-		self.payoutQueue = addon.PayoutQueue.Create(payments, frame:GetSubject())
+		self.payoutQueue = addon.PayoutQueuePrototype.Create(payments, frame:GetSubject())
 	end)
 	if not success then self:Printf("Error parsing payments: %s", err) end
 	self.payoutSetupFrame = nil
@@ -139,7 +139,7 @@ function Core:OnShowPayoutProgressFrame(_, frame)
 end
 
 function Core:SplitPayments(payments)
-	local payoutSplitter = addon.PayoutSplitter.Create(
+	local payoutSplitter = addon.PayoutSplitterPrototype.Create(
 		self.db.profile.maxPayoutSizeInGold * COPPER_PER_GOLD,
 		self.db.profile.maxPayoutSplits
 	)
@@ -157,7 +157,7 @@ end
 function Core:StartPayout()
 	if not self.payoutQueue then error("Tried to start payout with no payout queue") end
 	if not self.payoutExecutor then
-		self.payoutExecutor = addon.PayoutExecutor.Create(self.payoutQueue)
+		self.payoutExecutor = addon.PayoutExecutorPrototype.Create(self.payoutQueue)
 		self.payoutExecutor.RegisterCallback(self, "OnMailSent")
 		self.payoutExecutor.RegisterCallback(self, "OnMailFailed")
 		self.payoutExecutor.RegisterCallback(self, "OnStopPayout")

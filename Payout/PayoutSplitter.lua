@@ -2,7 +2,7 @@ local _, addon = ...
 
 local PayoutSplitterPrototype = {}
 PayoutSplitterPrototype.__index = PayoutSplitterPrototype
-addon.PayoutSplitter = PayoutSplitterPrototype
+addon.PayoutSplitterPrototype = PayoutSplitterPrototype
 
 function PayoutSplitterPrototype.Create(splitAfterCopper, maxSplits)
 	local splitter = setmetatable({}, PayoutSplitterPrototype)

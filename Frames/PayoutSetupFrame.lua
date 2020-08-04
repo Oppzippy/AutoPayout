@@ -6,7 +6,7 @@ local L = addon.L
 
 local PayoutSetupFramePrototype = {}
 PayoutSetupFramePrototype.__index = PayoutSetupFramePrototype
-addon.PayoutSetupFrame = PayoutSetupFramePrototype
+addon.PayoutSetupFramePrototype = PayoutSetupFramePrototype
 
 function PayoutSetupFramePrototype.Create()
 	local frame = setmetatable({}, PayoutSetupFramePrototype)
