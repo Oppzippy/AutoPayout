@@ -121,7 +121,7 @@ function PayoutSetupFramePrototype:CreateStartButton()
 end
 
 function PayoutSetupFramePrototype:UpdateStartButton()
-	local success, err = pcall(function() addon.PayoutQueue.ParseCSV(self.pasteBoxText) end)
+	local success, err = pcall(function() addon.PayoutQueuePrototype.ParseCSV(self.pasteBoxText) end)
 	self.startButton:SetDisabled(not success)
 	if not success then
 		self.frame:SetStatusText(err.message)
@@ -146,7 +146,7 @@ function PayoutSetupFramePrototype:IsVisible()
 end
 
 function PayoutSetupFramePrototype:GetPayments()
-	local csv = addon.PayoutQueue.ParseCSV(self.pasteBoxText)
+	local csv = addon.PayoutQueuePrototype.ParseCSV(self.pasteBoxText)
 	local payments = {}
 	for i, payment in ipairs(csv) do
 		payments[i] = {
