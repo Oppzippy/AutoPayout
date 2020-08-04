@@ -10,8 +10,7 @@ libs.xml
 Locales\locales.xml
 Core.lua
 Options.lua
-PayoutQueue.lua
-PayoutExecutor.lua
 EventHandler.lua
 CSV.lua
+Payout\include.xml
 Frames\include.xml

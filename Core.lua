@@ -121,7 +121,7 @@ function Core:HideSetupPayoutFrame()
 end
 
 function Core:OnShowPayoutProgressFrame(_, frame)
-	local payments = frame:GetPayments()
+	local payments = self:SplitPayments(frame:GetPayments())
 	local success, err = pcall(function()
 		self.payoutQueue = addon.PayoutQueue.Create(payments, frame:GetSubject())
 	end)
@@ -136,6 +136,14 @@ function Core:OnShowPayoutProgressFrame(_, frame)
 		timestamp = GetServerTime(),
 		input = frame:GetCSV(),
 	}
+end
+
+function Core:SplitPayments(payments)
+	local payoutSplitter = addon.PayoutSplitter.Create(
+		self.db.profile.maxPayoutSizeInGold * COPPER_PER_GOLD,
+		self.db.profile.maxPayoutSplits
+	)
+	return payoutSplitter:SplitPayments(payments)
 end
 
 function Core:ShowInProgressPayout(_, frame)
@@ -166,8 +174,10 @@ end
 function Core:OnStopPayout()
 	if self.payoutExecutor then
 		self.payoutExecutor = nil
-		self.payoutProgressFrame:SetStartButtonState(false)
-		self.payoutProgressFrame:UpdateUnpaidCSV()
+		if self.payoutProgressFrame then
+			self.payoutProgressFrame:SetStartButtonState(false)
+			self.payoutProgressFrame:UpdateUnpaidCSV()
+		end
 	end
 end
 

@@ -36,45 +36,30 @@ do
 	end
 end
 
-function PayoutQueuePrototype.Create(payments, subject)
+-- globalSubject is deprecated. use the subject property in individual payments.
+function PayoutQueuePrototype.Create(payments, globalSubject)
 	local payoutQueue = setmetatable({}, PayoutQueuePrototype)
 	payoutQueue.payouts = {}
-	for _, payment in ipairs(payments) do
-		payoutQueue:AddPayment(payment, subject)
-	end
 	payoutQueue.index = 1
+	if payments then
+		for _, payment in ipairs(payments) do
+			if globalSubject then
+				payment.subject = globalSubject
+			end
+			payoutQueue:AddPayment(payment)
+		end
+	end
 	return payoutQueue
 end
 
-function PayoutQueuePrototype:AddPayment(payment, subject, id)
-	local payments = self:SplitPayment(payment.copper)
-	for _, copper in ipairs(payments) do
-		local nextIndex = #self.payouts+1
-		self.payouts[nextIndex] = {
-			player = payment.player,
-			copper = copper,
-			subject = subject,
-			id = nextIndex,
-		}
-	end
-end
-
-function PayoutQueuePrototype:SplitPayment(copper)
-	local copperCap = addon.core.db.profile.maxPayoutSizeInGold * COPPER_PER_GOLD
-	local maxSplits = addon.core.db.profile.maxPayoutSplits
-
-	local t = {}
-	local count = 0
-	while copper > 0 do
-		count = count + 1
-		local payoutCopper = copper
-		if payoutCopper > copperCap and count <= maxSplits then
-			payoutCopper = copperCap
-		end
-		copper = copper - payoutCopper
-		t[#t+1] = payoutCopper
-	end
-	return t
+function PayoutQueuePrototype:AddPayment(payment)
+	local nextIndex = #self.payouts+1
+	self.payouts[nextIndex] = {
+		player = payment.player,
+		copper = payment.copper,
+		subject = payment.subject,
+		id = nextIndex,
+	}
 end
 
 function PayoutQueuePrototype:IteratePayouts()
