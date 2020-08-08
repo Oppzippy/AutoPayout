@@ -67,7 +67,7 @@ function HistoryFramePrototype:RenderRecord(record)
 	container:SetLayout("flow")
 
 	local inputBox = self:CreateRecordBox(L.input, record.input)
-	local outputBox = self:CreateRecordBox(L.output, record.output)
+	local outputBox = self:CreateRecordBox(L.output, record.output or record.input)
 
 	inputBox:SetRelativeWidth(0.5)
 	outputBox:SetRelativeWidth(0.5)

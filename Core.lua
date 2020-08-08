@@ -1,15 +1,17 @@
 local _, addon = ...
+addon.COMM_PREFIX = "HuokanPayout"
 
 local AceAddon = LibStub("AceAddon-3.0")
 local AceLocale = LibStub("AceLocale-3.0")
 local AceDB = LibStub("AceDB-3.0")
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+local LibDeflate = LibStub("LibDeflate")
 
 local L = AceLocale:GetLocale("HuokanPayout")
 addon.L = L
 
-local Core = AceAddon:NewAddon("HuokanPayout", "AceConsole-3.0")
+local Core = AceAddon:NewAddon("HuokanPayout", "AceConsole-3.0", "AceComm-3.0", "AceSerializer-3.0")
 addon.core = Core
 
 function Core:OnInitialize()
@@ -20,6 +22,91 @@ function Core:OnInitialize()
 	self:ResetState()
 	addon.EventHandler.Embed(self)
 	self:RegisterEvent("MAIL_SHOW")
+	self:RegisterComm(addon.COMM_PREFIX, "OnCommReceived")
+end
+
+function Core:OnCommReceived(prefix, text, channel, sender)
+	-- TODO if not allowedSender then return end
+	local success, packet = self:DeserializePacket(text)
+	if not success then
+		self:Debugf("Received bad packet: %s\n%s", packet, text)
+		return
+	end
+	if packet.type == "DoNewPayout" then
+		if self.payoutQueue then
+			local responsePacket = {
+				type = "ErrPayoutInProgress",
+			}
+			self:SendCommMessage(addon.COMM_PREFIX, self:SerializePacket(responsePacket), "WHISPER", sender)
+			return
+		end
+		if self.payoutSetupFrame then
+			self.payoutSetupFrame:Hide()
+			self.payoutSetupFrame = nil
+		end
+		self:ShowPayoutProgressFrameRaw(packet.payments, packet.unit)
+		self:CreateHistoryRecord(self:PaymentsToCSV(packet.payments))
+	end
+end
+
+function Core:DistributePaymentsAndSend(payments, players, unit)
+	local playerPayments = self:DistributePayments(payments, players)
+	self:SendPayments(playerPayments, unit)
+end
+
+do
+	local function sortPaymentsDesc(a, b)
+		return a.copper > b.copper
+	end
+
+	local function getCopper(payment)
+		return payment.copper
+	end
+
+	function Core:DistributePayments(payments, players)
+		table.sort(payments, sortPaymentsDesc)
+		local partitions = addon.TableUtils.GreedyPartition(payments, #players, getCopper)
+		local playerPayments = {}
+		for i, player in ipairs(players) do
+			playerPayments[player] = partitions[i]
+		end
+
+		return playerPayments
+	end
+end
+
+function Core:SendPayments(playerPayments, unit)
+	for player, payments in next, playerPayments do
+		local packet = {
+			type = "DoNewPayout",
+			payments = payments,
+			unit = unit,
+		}
+		self:SendCommMessage(addon.COMM_PREFIX, self:SerializePacket(packet), "WHISPER", player)
+	end
+end
+
+function Core:SerializePacket(packet)
+	local serialized = self:Serialize(packet)
+	local compressed = LibDeflate:CompressDeflate(serialized)
+	return LibDeflate:EncodeForWoWAddonChannel(compressed)
+end
+
+function Core:DeserializePacket(compressed)
+	local decoded = LibDeflate:DecodeForWoWAddonChannel(compressed)
+	local serialized = LibDeflate:DecompressDeflate(decoded)
+	if not serialized then
+		return false, "Failed to decompress"
+	end
+	return self:Deserialize(serialized)
+end
+
+function Core:PaymentsToCSV(payments)
+	local lines = {}
+	for _, payment in ipairs(payments) do
+		lines[#lines+1] = string.format("%s,%s", payment.player, payment.copper)
+	end
+	return table.concat(lines, "\n")
 end
 
 function Core:ResetState()
@@ -44,9 +131,9 @@ function Core:CreatePayoutProgressFrame()
 end
 
 function Core:OnPayoutProgressFrameDone()
-	self.historyRecord.output = self.payoutProgressFrame:GetUnpaidCSV()
-	table.insert(self.db.profile.history, 1, self.historyRecord)
-	self:WipeOldHistory()
+	if self.historyRecord then
+		self.historyRecord.output = self.payoutProgressFrame:GetUnpaidCSV()
+	end
 	self:ResetState()
 end
 
@@ -122,20 +209,32 @@ end
 
 function Core:OnShowPayoutProgressFrame(_, frame)
 	local payments = self:SplitPayments(frame:GetPayments())
+	for _, payment in next, payments do
+		payment.subject = frame:GetSubject()
+	end
+	self:ShowPayoutProgressFrameRaw(payments, frame:GetUnit())
+	self:CreateHistoryRecord(frame:GetCSV())
+end
+
+function Core:ShowPayoutProgressFrameRaw(payments, unit)
 	local success, err = pcall(function()
-		self.payoutQueue = addon.PayoutQueuePrototype.Create(payments, frame:GetSubject())
+		self.payoutQueue = addon.PayoutQueuePrototype.Create(payments)
 	end)
 	if not success then self:Printf("Error parsing payments: %s", err) end
 	self.payoutSetupFrame = nil
 	self:CreatePayoutProgressFrame()
-	self.payoutProgressFrame:SetUnit(frame:GetUnit())
+	self.payoutProgressFrame:SetUnit(unit)
 	self.payoutProgressFrame:Show(self.payoutQueue)
 	self.payoutProgressFrame.RegisterCallback(self, "DoStopPayout", "StopPayout")
+end
 
+function Core:CreateHistoryRecord(input)
 	self.historyRecord = {
 		timestamp = GetServerTime(),
-		input = frame:GetCSV(),
+		input = input,
 	}
+	table.insert(self.db.profile.history, 1, self.historyRecord)
+	self:WipeOldHistory()
 end
 
 function Core:SplitPayments(payments)

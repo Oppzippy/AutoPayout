@@ -3,7 +3,7 @@
 ## Notes: Automatically send payouts through in game mail.
 ## Author: Oppzippy
 ## Version: @project-version@
-## OptionalDeps: Ace3
+## OptionalDeps: Ace3, LibDeflate
 ## SavedVariables: HuokanPayoutDB
 
 libs.xml
@@ -14,3 +14,4 @@ EventHandler.lua
 CSV.lua
 Payout\include.xml
 Frames\include.xml
+Utils\include.xml
