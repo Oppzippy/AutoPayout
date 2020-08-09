@@ -11,6 +11,7 @@ addon.PayoutSetupFramePrototype = PayoutSetupFramePrototype
 function PayoutSetupFramePrototype.Create()
 	local frame = setmetatable({}, PayoutSetupFramePrototype)
 	frame.callbacks = CallbackHandler:New(frame)
+	frame.frames = {}
 	return frame
 end
 
@@ -19,33 +20,34 @@ function PayoutSetupFramePrototype:Show()
 end
 
 function PayoutSetupFramePrototype:CreateFrame()
-	self.frame = AceGUI:Create("Frame")
-	self.frame:SetCallback("OnClose", function(widget)
+	local frame = AceGUI:Create("Frame")
+	self.frames.frame = frame
+	frame:SetCallback("OnClose", function(widget)
 		self:Hide()
 	end)
-	self.frame:SetWidth(500)
-	self.frame:SetHeight(325)
-	self.frame:EnableResize(false)
-	self.frame:SetLayout("Flow")
+	frame:SetWidth(500)
+	frame:SetHeight(325)
+	frame:EnableResize(false)
+	frame:SetLayout("Flow")
 
-	self.frame:SetTitle(L.payout_setup)
+	frame:SetTitle(L.payout_setup)
 
-	self.subjectBox = self:CreateSubjectBox()
-	self.subjectBox:SetRelativeWidth(1)
-	self.frame:AddChild(self.subjectBox)
+	self.frames.subjectBox = self:CreateSubjectBox()
+	self.frames.subjectBox:SetRelativeWidth(1)
+	frame:AddChild(self.frames.subjectBox)
 
-	self.pasteBox = self:CreatePasteBox()
-	self.pasteBox:SetRelativeWidth(1)
-	self.frame:AddChild(self.pasteBox)
+	self.frames.pasteBox = self:CreatePasteBox()
+	self.frames.pasteBox:SetRelativeWidth(1)
+	frame:AddChild(self.frames.pasteBox)
 
-	self.unitSelection = self:CreateUnitSelection()
-	self.unitSelection:SetRelativeWidth(1)
-	self.frame:AddChild(self.unitSelection)
+	self.frames.unitSelection = self:CreateUnitSelection()
+	self.frames.unitSelection:SetRelativeWidth(1)
+	frame:AddChild(self.frames.unitSelection)
 
-	self.startButton = self:CreateStartButton()
+	self.frames.startButton = self:CreateStartButton()
 	self:UpdateStartButton()
-	self.startButton:SetRelativeWidth(1)
-	self.frame:AddChild(self.startButton)
+	self.frames.startButton:SetRelativeWidth(1)
+	frame:AddChild(self.frames.startButton)
 end
 
 function PayoutSetupFramePrototype:CreateSubjectBox()
@@ -122,27 +124,23 @@ end
 
 function PayoutSetupFramePrototype:UpdateStartButton()
 	local success, err = pcall(function() addon.PayoutQueuePrototype.ParseCSV(self.pasteBoxText) end)
-	self.startButton:SetDisabled(not success)
+	self.frames.startButton:SetDisabled(not success)
 	if not success then
-		self.frame:SetStatusText(err.message)
+		self.frames.frame:SetStatusText(err.message)
 	else
-		self.frame:SetStatusText("")
+		self.frames.frame:SetStatusText("")
 	end
 end
 
 function PayoutSetupFramePrototype:Hide()
 	if self.frame then
-		self.frame:Release()
-		self.frame = nil
-		self.pasteBox = nil
-		self.subjectBox = nil
-		self.unitSelection = nil
-		self.startButton = nil
+		self.frames.frame:Release()
+		self.frames = {}
 	end
 end
 
 function PayoutSetupFramePrototype:IsVisible()
-	return self.frame ~= nil
+	return self.frames.frame ~= nil
 end
 
 function PayoutSetupFramePrototype:GetPayments()
