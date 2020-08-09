@@ -9,8 +9,11 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - run: sudo apt-get install lua-check
-      - run: luacheck .
-      - env:
+      - name: Install luacheck
+        run: sudo apt-get install lua-check
+      - name: Run luacheck
+        run: luacheck .
+      - name: Package and release
+        env:
           GITHUB_OAUTH: ${{ secrets.GH_OAUTH }}
-        run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash
+        uses: BigWigsMods/packager@master
