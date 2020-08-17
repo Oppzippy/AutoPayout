@@ -16,4 +16,4 @@ jobs:
       - name: Package and release
         env:
           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
-        uses: BigWigsMods/packager@master
+        run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash
