@@ -15,5 +15,5 @@ jobs:
         run: luacheck .
       - name: Package and release
         env:
-          GITHUB_OAUTH: ${{ secrets.GH_OAUTH }}
-        uses: BigWigsMods/packager@master
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+        run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash
