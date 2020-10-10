@@ -133,7 +133,7 @@ function PayoutSetupFramePrototype:UpdateStartButton()
 end
 
 function PayoutSetupFramePrototype:Hide()
-	if self.frame then
+	if self.frames.frame then
 		self.frames.frame:Release()
 		self.frames = {}
 	end
