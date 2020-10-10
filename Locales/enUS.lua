@@ -12,7 +12,7 @@ L.payout_history = "Payout History"
 
 L.subject = "Subject"
 L.unit = "Unit"
-L.start_payout = "Start Payout"
+L.start_payout = "Pay Next"
 L.not_assigned_gold_value = "%s is not assigned a gold value"
 L.next = "Next"
 

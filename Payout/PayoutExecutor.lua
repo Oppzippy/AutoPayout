@@ -84,6 +84,7 @@ function PayoutExecutorPrototype:MAIL_SEND_SUCCESS()
 	addon.core:Debugf("%s sent", payout.player)
 	-- GetMoney doesnt update until another message is received from the server
 	local predictedMoney = GetMoney() - payout.copper - 30
+	self:Stop() -- Repeated sending could be against blizzard's addon policy
 	if not self.stopTicker then
 		self:SendNext(predictedMoney)
 	end
