@@ -134,6 +134,11 @@ function Core:OnShowPayoutProgressFrame(_, frame)
 
 	self.historyRecord = {
 		timestamp = GetServerTime(),
+		unit = frame:GetUnit(),
+		sender = {
+			name = UnitName("player"),
+			realm = GetRealmName(),
+		},
 		input = frame:GetCSV(),
 	}
 end

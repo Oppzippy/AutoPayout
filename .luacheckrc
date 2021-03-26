@@ -23,4 +23,6 @@ globals = {
 	"date",
 	"GetServerTime",
 	"C_Mail",
+	"UnitName",
+	"GetRealmName",
 }
