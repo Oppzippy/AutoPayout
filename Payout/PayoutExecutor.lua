@@ -25,16 +25,18 @@ end
 function PayoutExecutorPrototype:Stop()
 	if self.stopTicker then return end
 
-	self.stopTicker = C_Timer.NewTicker(0, function()
-		if not C_Mail.IsCommandPending() then
-			self.isPayoutInProgress = false
-			self:UnregisterEvent("MAIL_SEND_SUCCESS")
-			self:UnregisterEvent("MAIL_FAILED")
-			self.stopTicker:Cancel()
-			self.stopTicker = nil
-			self.callbacks:Fire("OnStopPayout")
-		end
-	end)
+	self:HaltIfNotBusy()
+	if self.isPayoutInProgress then
+		self.stopTicker = C_Timer.NewTicker(0, function()
+			self:HaltIfNotBusy()
+		end)
+	end
+end
+
+function PayoutExecutorPrototype:HaltIfNotBusy()
+	if not C_Mail.IsCommandPending() then
+		self:Halt()
+	end
 end
 
 function PayoutExecutorPrototype:Halt()
