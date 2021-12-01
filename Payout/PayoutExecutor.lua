@@ -86,7 +86,7 @@ function PayoutExecutorPrototype:MAIL_SEND_SUCCESS()
 	addon.core:Debugf("%s sent", payout.player)
 	-- GetMoney doesnt update until another message is received from the server
 	local predictedMoney = GetMoney() - payout.copper - 30
-	if not self.stopTicker then
+	if self.isPayoutInProgress and not self.stopTicker then
 		self:SendNext(predictedMoney)
 	end
 end
