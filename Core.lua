@@ -12,10 +12,13 @@ addon.L = L
 local Core = AceAddon:NewAddon("HuokanPayout", "AceConsole-3.0")
 addon.core = Core
 
-hooksecurefunc("SendMail", function(recipient)
-	if Core.payoutExecutor and recipient ~= Core.payoutExecutor:NextRecipient() then
-		Core.payoutExecutor:Destroy()
-		Core.payoutExecutor= nil
+hooksecurefunc("SendMail", function(recipient, subject, body)
+	if Core.payoutExecutor then
+		local nextMail = Core.payoutExecutor:GetNextMail()
+		if not nextMail or recipient ~= nextMail.player or subject ~= nextMail.subject or body ~= "" then
+			Core.payoutExecutor:Destroy()
+			Core.payoutExecutor = nil
+		end
 	end
 end)
 
@@ -187,11 +190,9 @@ function Core:StopPayout()
 end
 
 function Core:OnStopPayout()
-	if self.payoutExecutor then
-		if self.payoutProgressFrame then
-			self.payoutProgressFrame:SetStartButtonState(false)
-			self.payoutProgressFrame:UpdateUnpaidCSV()
-		end
+	if self.payoutProgressFrame then
+		self.payoutProgressFrame:SetStartButtonState(false)
+		self.payoutProgressFrame:UpdateUnpaidCSV()
 	end
 end
 

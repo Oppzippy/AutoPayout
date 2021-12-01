@@ -17,15 +17,15 @@ function PayoutExecutorPrototype.Create(payoutQueue)
 	return payoutExecutor
 end
 
+function PayoutExecutorPrototype:Start()
+	self.isPayoutInProgress = true
+	self:SendNext()
+end
+
 function PayoutExecutorPrototype:Destroy()
 	self:Stop()
 	self:UnregisterEvent("MAIL_SEND_SUCCESS")
 	self:UnregisterEvent("MAIL_FAILED")
-end
-
-function PayoutExecutorPrototype:Start()
-	self.isPayoutInProgress = true
-	self:SendNext()
 end
 
 function PayoutExecutorPrototype:Stop()
@@ -56,9 +56,8 @@ function PayoutExecutorPrototype:Halt()
 	end
 end
 
-function PayoutExecutorPrototype:NextRecipient()
-	local next = self.payoutQueue:Peek()
-	return next.player
+function PayoutExecutorPrototype:GetNextMail()
+	return self.payoutQueue:Peek()
 end
 
 function PayoutExecutorPrototype:SendNext(predictedMoney)
