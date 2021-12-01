@@ -117,8 +117,10 @@ end
 
 function PayoutProgressFramePrototype:SetStartButtonState(isDown)
 	self.isPayoutInProgress = isDown
-	self.frames.startButton:SetText(isDown and L.pause or L.start)
-	self.frames.frame:SetStatusText(isDown and L.payout_in_progress or "")
+	if self.frames.frame then
+		self.frames.startButton:SetText(isDown and L.pause or L.start)
+		self.frames.frame:SetStatusText(isDown and L.payout_in_progress or "")
+	end
 end
 
 function PayoutProgressFramePrototype:CreateDoneButton()
@@ -175,9 +177,11 @@ function PayoutProgressFramePrototype:IsVisible()
 end
 
 function PayoutProgressFramePrototype:MarkPaid(payout)
-	local label = self.frames.detailedPayoutListingLabels[payout.id]
-	if not label then error("Tried to change paid status of nonexistent label") end
-	label:SetImage(PAID_IMAGE)
+	if self.frames.frame then
+		local label = self.frames.detailedPayoutListingLabels[payout.id]
+		if not label then error("Tried to change paid status of nonexistent label") end
+		label:SetImage(PAID_IMAGE)
+	end
 end
 
 function PayoutProgressFramePrototype:MarkUnpaid(payout)
