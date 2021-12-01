@@ -12,6 +12,13 @@ addon.L = L
 local Core = AceAddon:NewAddon("HuokanPayout", "AceConsole-3.0")
 addon.core = Core
 
+hooksecurefunc("SendMail", function(recipient)
+	if Core.payoutExecutor and recipient ~= Core.payoutExecutor:NextRecipient() then
+		Core.payoutExecutor:Destroy()
+		Core.payoutExecutor= nil
+	end
+end)
+
 function Core:OnInitialize()
 	self.db = AceDB:New("HuokanPayoutDB", addon.dbDefaults, true)
 	AceConfig:RegisterOptionsTable("HuokanPayout", addon.options)
@@ -23,7 +30,10 @@ function Core:OnInitialize()
 end
 
 function Core:ResetState()
-	self:StopPayout()
+	if self.payoutExecutor then
+		self.payoutExecutor:Destroy()
+		self.payoutExecutor = nil
+	end
 	self.payoutQueue = nil
 	self.historyRecord = nil
 	if self.payoutSetupFrame then self.payoutSetupFrame:Hide() end
@@ -178,7 +188,6 @@ end
 
 function Core:OnStopPayout()
 	if self.payoutExecutor then
-		self.payoutExecutor = nil
 		if self.payoutProgressFrame then
 			self.payoutProgressFrame:SetStartButtonState(false)
 			self.payoutProgressFrame:UpdateUnpaidCSV()

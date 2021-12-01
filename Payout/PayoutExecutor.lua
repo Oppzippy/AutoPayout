@@ -12,13 +12,19 @@ function PayoutExecutorPrototype.Create(payoutQueue)
 	payoutExecutor.callbacks = CallbackHandler:New(payoutExecutor)
 	payoutExecutor.payoutQueue = payoutQueue
 	payoutExecutor.frame = CreateFrame("Frame")
+	payoutExecutor:RegisterEvent("MAIL_SEND_SUCCESS")
+	payoutExecutor:RegisterEvent("MAIL_FAILED")
 	return payoutExecutor
+end
+
+function PayoutExecutorPrototype:Destroy()
+	self:Stop()
+	self:UnregisterEvent("MAIL_SEND_SUCCESS")
+	self:UnregisterEvent("MAIL_FAILED")
 end
 
 function PayoutExecutorPrototype:Start()
 	self.isPayoutInProgress = true
-	self:RegisterEvent("MAIL_SEND_SUCCESS")
-	self:RegisterEvent("MAIL_FAILED")
 	self:SendNext()
 end
 
@@ -40,14 +46,19 @@ function PayoutExecutorPrototype:HaltIfNotBusy()
 end
 
 function PayoutExecutorPrototype:Halt()
-	self.isPayoutInProgress = false
-	self:UnregisterEvent("MAIL_SEND_SUCCESS")
-	self:UnregisterEvent("MAIL_FAILED")
-	self.callbacks:Fire("OnStopPayout")
-	if self.stopTicker then
-		self.stopTicker:Cancel()
-		self.stopTicker = nil
+	if self.isPayoutInProgress then
+		self.isPayoutInProgress = false
+		self.callbacks:Fire("OnStopPayout")
+		if self.stopTicker then
+			self.stopTicker:Cancel()
+			self.stopTicker = nil
+		end
 	end
+end
+
+function PayoutExecutorPrototype:NextRecipient()
+	local next = self.payoutQueue:Peek()
+	return next.player
 end
 
 function PayoutExecutorPrototype:SendNext(predictedMoney)
