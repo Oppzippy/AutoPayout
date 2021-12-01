@@ -25,4 +25,5 @@ globals = {
 	"C_Mail",
 	"UnitName",
 	"GetRealmName",
+	"hooksecurefunc",
 }
