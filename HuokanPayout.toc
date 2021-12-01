@@ -1,4 +1,4 @@
-## Interface: 90005
+## Interface: 90105
 ## Title: Huokan Payout
 ## Notes: Automatically send payouts through in game mail.
 ## Author: Oppzippy
