@@ -1,19 +1,31 @@
 name: Release
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "*"
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  release:
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Install luacheck
-        run: sudo apt-get install lua-check
-      - name: Run luacheck
+      - name: Install luarocks
+        run: sudo apt-get install luarocks lua-check
+      - name: Install luaunit
+        run: sudo luarocks install luaunit
+      - name: Run tests
+        run: lua Tests/Test.lua
+      - name: Lint
         run: luacheck .
       - name: Package and release
+        uses: BigWigsMods/packager@v2
         env:
           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
-        run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+          WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
