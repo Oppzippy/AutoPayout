@@ -2,7 +2,7 @@ std = "lua51"
 max_line_length = false
 exclude_files = {
 	"**/Libs",
-	"Test",
+	"Tests",
 }
 ignore = {
 	"212", -- Unused argument

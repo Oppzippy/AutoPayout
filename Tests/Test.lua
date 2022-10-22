@@ -1,5 +1,5 @@
 local luaunit = require("luaunit")
 
-require("Test.CSV")
+require("Tests.CSV")
 
 os.exit(luaunit.LuaUnit.run())
