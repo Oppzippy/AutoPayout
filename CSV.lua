@@ -1,7 +1,6 @@
 local _, addon = ...
 
 local CSV = {}
-addon.CSV = CSV
 
 function CSV.ToCSV(t)
 	local csv = {}
@@ -11,11 +10,25 @@ function CSV.ToCSV(t)
 	return table.concat(csv, "\n")
 end
 
+---@param csv string
+---@return string[][]
 function CSV.ToTable(csv)
 	local t = {}
-	local lines = { strsplit("\n", csv) }
-	for i, line in ipairs(lines) do
-		t[i] = { strsplit(",", line) }
+	for line in csv:gmatch("[^\r\n]+") do
+		local row = {}
+		t[#t + 1] = row
+
+		-- Convert four+ spaces TSV to CSV
+		line = line:gsub("    [ ]*", ",")
+
+		for cell in line:gmatch("[^,\t]+") do
+			row[#row + 1] = cell
+		end
 	end
 	return t
 end
+
+if addon then
+	addon.CSV = CSV
+end
+return CSV

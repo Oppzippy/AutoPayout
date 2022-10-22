@@ -14,18 +14,18 @@ do
 
 	function PayoutQueuePrototype.ParseCSV(csv)
 		local payments = {}
-		local lines = { strsplit("\n", csv) }
-		for _, line in ipairs(lines) do
-			local player, copper = strsplit(",", line)
+		local rows = addon.CSV.ToTable(csv)
+		for _, row in ipairs(rows) do
+			local player, copper = row[1], row[2]
 			player = trim(player)
-			copper = tonumber(trim(copper))
+			copper = tonumber(copper)
 			if #player > 0 then
 				if not copper then
-					error({message = L.not_assigned_gold_value:format(player)})
+					error({ message = L.not_assigned_gold_value:format(player) })
 				elseif copper < 0 then
-					error({message = L.can_not_assign_negative_gold:format(player)})
+					error({ message = L.can_not_assign_negative_gold:format(player) })
 				elseif copper > 0 then
-					payments[#payments+1] = {
+					payments[#payments + 1] = {
 						copper = copper,
 						player = player,
 					}
@@ -53,7 +53,7 @@ function PayoutQueuePrototype.Create(payments, globalSubject)
 end
 
 function PayoutQueuePrototype:AddPayment(payment)
-	local nextIndex = #self.payouts+1
+	local nextIndex = #self.payouts + 1
 	self.payouts[nextIndex] = {
 		player = payment.player,
 		copper = payment.copper,
