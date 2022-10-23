@@ -1,4 +1,4 @@
-package-as: HuokanPayout
+package-as: AutoPayout
 enable-nolib-creation: no
 
 externals:

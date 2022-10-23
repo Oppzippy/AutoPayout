@@ -9,7 +9,6 @@ ignore = {
 }
 globals = {
 	"LibStub",
-	"HuokanPayout",
 	"GetCoinTextureString",
 	"strsplit",
 	"COPPER_PER_GOLD",

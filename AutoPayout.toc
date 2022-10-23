@@ -1,10 +1,10 @@
 ## Interface: 90105
-## Title: Huokan Payout
+## Title: Auto Payout
 ## Notes: Automatically send payouts through in game mail.
 ## Author: Oppzippy
 ## Version: @project-version@
 ## OptionalDeps: Ace3
-## SavedVariables: HuokanPayoutDB
+## SavedVariables: AutoPayoutDB
 
 libs.xml
 Locales\locales.xml

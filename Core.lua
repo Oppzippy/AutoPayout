@@ -1,4 +1,4 @@
-local _, addon = ...
+local addonName, addon = ...
 
 local AceAddon = LibStub("AceAddon-3.0")
 local AceLocale = LibStub("AceLocale-3.0")
@@ -6,10 +6,10 @@ local AceDB = LibStub("AceDB-3.0")
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
-local L = AceLocale:GetLocale("HuokanPayout")
+local L = AceLocale:GetLocale(addonName)
 addon.L = L
 
-local Core = AceAddon:NewAddon("HuokanPayout", "AceConsole-3.0")
+local Core = AceAddon:NewAddon(addonName, "AceConsole-3.0")
 addon.core = Core
 
 hooksecurefunc("SendMail", function(recipient, subject, body)
@@ -23,9 +23,9 @@ hooksecurefunc("SendMail", function(recipient, subject, body)
 end)
 
 function Core:OnInitialize()
-	self.db = AceDB:New("HuokanPayoutDB", addon.dbDefaults, true)
-	AceConfig:RegisterOptionsTable("HuokanPayout", addon.options)
-	AceConfigDialog:AddToBlizOptions("HuokanPayout", L.addon_name)
+	self.db = AceDB:New("AutoPayoutDB", addon.dbDefaults, true)
+	AceConfig:RegisterOptionsTable(addonName, addon.options)
+	AceConfigDialog:AddToBlizOptions(addonName, L.addon_name)
 	self:RegisterChatCommand("payout", "SlashPayout")
 	self:ResetState()
 	addon.EventHandler.Embed(self)

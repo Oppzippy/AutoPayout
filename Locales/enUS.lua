@@ -1,7 +1,9 @@
-local L = LibStub("AceLocale-3.0"):NewLocale("HuokanPayout", "enUS", true)
+local addonName = ...
+
+local L = LibStub("AceLocale-3.0"):NewLocale(addonName, "enUS", true)
 if not L then return end
 
-L.addon_name = "Huokan Payout"
+L.addon_name = "Auto Payout"
 
 L.date_time = "%Y-%m-%d %I:%M%p"
 

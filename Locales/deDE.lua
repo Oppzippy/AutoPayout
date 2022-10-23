@@ -1,7 +1,9 @@
-local L = LibStub("AceLocale-3.0"):NewLocale("HuokanPayout", "deDE")
+local addonName = ...
+
+local L = LibStub("AceLocale-3.0"):NewLocale(addonName, "deDE")
 if not L then return end
 
--- L.addon_name = "Huokan Payout"
+-- L.addon_name = "Auto Payout"
 
 -- L.payout_setup = "Payout Setup"
 -- L.payout = "Payout"
