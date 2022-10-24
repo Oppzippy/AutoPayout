@@ -7,6 +7,7 @@
 ## SavedVariables: AutoPayoutDB
 ## X-Curse-Project-ID: 693345
 ## X-Wago-ID: WL6Jzd6v
+## X-WoWI-ID: 26430
 
 libs.xml
 Locales\locales.xml
