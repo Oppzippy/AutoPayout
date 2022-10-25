@@ -2,7 +2,7 @@
 
 World of Warcraft addon for sending out gold to large numbers of players quickly.
 
-[demo.webm](https://user-images.githubusercontent.com/2236514/197665557-55acf6ca-cd94-48eb-a4b6-dac7a13d7f0e.webm)
+[demo.webm](https://user-images.githubusercontent.com/2236514/197667444-d9a6b089-4ae9-4b51-981e-4fe2bc87c2c6.webm)
 
 ## Download
 
