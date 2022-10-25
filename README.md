@@ -6,9 +6,9 @@ World of Warcraft addon for sending out gold to large numbers of players quickly
 
 ## Download
 
-[CurseForge](https://www.curseforge.com/wow/addons/auto-payout)
-[Wago](https://addons.wago.io/addons/auto-payout)
-[WoWInterface](https://www.wowinterface.com/downloads/info26430-AutoPayout.html)
+[CurseForge](https://www.curseforge.com/wow/addons/auto-payout)  
+[Wago](https://addons.wago.io/addons/auto-payout)  
+[WoWInterface](https://www.wowinterface.com/downloads/info26430-AutoPayout.html)  
 [GitHub](https://github.com/Oppzippy/AutoPayout/releases)
 
 ## Commands
