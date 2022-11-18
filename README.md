@@ -13,7 +13,7 @@ World of Warcraft addon for sending out gold to large numbers of players quickly
 
 ## Commands
 
-/payout - Toggle AutoPayout UI
+/payout - Toggle AutoPayout UI  
 /payout history - Show list of past payouts
 
 ## Usage
