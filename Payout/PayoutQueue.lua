@@ -1,9 +1,10 @@
-local _, addon = ...
+---@class addon
+local addon = select(2, ...)
 local L = addon.L
 
+---@class PayoutQueue
+---@field payouts table
 local PayoutQueuePrototype = {}
-PayoutQueuePrototype.__index = PayoutQueuePrototype
-
 addon.PayoutQueuePrototype = PayoutQueuePrototype
 
 do
@@ -16,9 +17,9 @@ do
 		local payments = {}
 		local rows = addon.CSV.ToTable(csv)
 		for _, row in ipairs(rows) do
-			local player, copper = row[1], row[2]
+			local player, copperString = row[1], row[2]
 			player = trim(player)
-			copper = tonumber(copper)
+			local copper = tonumber(copperString)
 			if #player > 0 then
 				if not copper then
 					error({ message = L.not_assigned_gold_value:format(player) })
@@ -36,9 +37,11 @@ do
 	end
 end
 
--- globalSubject is deprecated. use the subject property in individual payments.
+---@param payments table
+---@param globalSubject string deprecated. use the subject property in individual payments.
+---@return PayoutQueue
 function PayoutQueuePrototype.Create(payments, globalSubject)
-	local payoutQueue = setmetatable({}, PayoutQueuePrototype)
+	local payoutQueue = setmetatable({}, { __index = PayoutQueuePrototype })
 	payoutQueue.payouts = {}
 	payoutQueue.index = 1
 	if payments then
@@ -52,6 +55,7 @@ function PayoutQueuePrototype.Create(payments, globalSubject)
 	return payoutQueue
 end
 
+---@param payment table
 function PayoutQueuePrototype:AddPayment(payment)
 	local nextIndex = #self.payouts + 1
 	self.payouts[nextIndex] = {
@@ -62,6 +66,7 @@ function PayoutQueuePrototype:AddPayment(payment)
 	}
 end
 
+---@return fun(): table?
 function PayoutQueuePrototype:IteratePayouts()
 	local i = 1
 	return function()
@@ -73,10 +78,12 @@ function PayoutQueuePrototype:IteratePayouts()
 	end
 end
 
+---@return table?
 function PayoutQueuePrototype:Peek()
 	return self.payouts[self.index]
 end
 
+---@return table
 function PayoutQueuePrototype:Pop()
 	local payment = self.payouts[self.index]
 	self.index = self.index + 1

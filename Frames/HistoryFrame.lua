@@ -1,15 +1,22 @@
-local _, addon = ...
+---@class addon
+local addon = select(2, ...)
 
 local AceGUI = LibStub("AceGUI-3.0")
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 local L = addon.L
 
+---@class HistoryFrame
+---@field callbacks CallbackHandlerRegistry
+---@field frames table
+---@field RegisterCallback fun(self: table, eventName: string, method?: string)
+---@field UnregisterCallback fun(self: table, eventName: string)
+---@field UnregisterAllCallbacks fun(self: table)
 local HistoryFramePrototype = {}
-HistoryFramePrototype.__index = HistoryFramePrototype
 addon.HistoryFramePrototype = HistoryFramePrototype
 
+---@return HistoryFrame
 function HistoryFramePrototype.Create()
-	local frame = setmetatable({}, HistoryFramePrototype)
+	local frame = setmetatable({}, { __index = HistoryFramePrototype })
 	frame.callbacks = CallbackHandler:New(frame)
 	frame.frames = {}
 	return frame
@@ -24,6 +31,7 @@ end
 
 function HistoryFramePrototype:CreateFrame()
 	local frame = AceGUI:Create("Frame")
+	---@cast frame AceGUIFrame
 	self.frames.frame = frame
 	frame:SetCallback("OnClose", function(widget)
 		self:Hide()
@@ -41,12 +49,16 @@ function HistoryFramePrototype:CreateFrame()
 	return frame
 end
 
+---@return AceGUISimpleGroup
+---@return AceGUIScrollFrame
 function HistoryFramePrototype:CreateScrollFrame()
 	local scrollContainer = AceGUI:Create("SimpleGroup")
+	---@cast scrollContainer AceGUISimpleGroup
 	scrollContainer:SetFullWidth(true)
 	scrollContainer:SetFullHeight(true)
 	scrollContainer:SetLayout("Fill")
 	local scrollFrame = AceGUI:Create("ScrollFrame")
+	---@cast scrollFrame AceGUIScrollFrame
 	scrollFrame:SetLayout("Flow")
 	scrollContainer:AddChild(scrollFrame)
 	return scrollContainer, scrollFrame
@@ -61,10 +73,14 @@ function HistoryFramePrototype:RenderRecords()
 	end
 end
 
+---@param record table
+---@return AceGUIInlineGroup
 function HistoryFramePrototype:RenderRecord(record)
 	local container = AceGUI:Create("InlineGroup")
+	---@cast container AceGUIInlineGroup
+	---@diagnostic disable-next-line: param-type-mismatch
 	container:SetTitle(date(L.date_time, record.timestamp))
-	container:SetLayout("flow")
+	container:SetLayout("Flow")
 
 	local inputBox = self:CreateRecordBox(L.input, record.input)
 	local outputBox = self:CreateRecordBox(L.output, record.output)
@@ -78,8 +94,12 @@ function HistoryFramePrototype:RenderRecord(record)
 	return container
 end
 
+---@param label string
+---@param text string
+---@return AceGUIMultiLineEditBox
 function HistoryFramePrototype:CreateRecordBox(label, text)
 	local box = AceGUI:Create("MultiLineEditBox")
+	---@cast box AceGUIMultiLineEditBox
 	box:SetLabel(label)
 	box:SetText(text)
 	box:SetNumLines(3)

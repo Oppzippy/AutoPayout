@@ -1,7 +1,11 @@
-local _, addon = ...
+---@class addon
+local addon = select(2, ...)
 
+---@class CSV
 local CSV = {}
 
+---@param t table
+---@return string
 function CSV.ToCSV(t)
 	local csv = {}
 	for i, line in ipairs(t) do

@@ -1,4 +1,5 @@
-local _, addon = ...
+---@class addon
+local addon = select(2, ...)
 local L = addon.L
 
 addon.options = {
@@ -33,7 +34,7 @@ addon.options = {
 				[1] = GetCoinTextureString(1),
 				[COPPER_PER_SILVER] = GetCoinTextureString(COPPER_PER_SILVER),
 				[COPPER_PER_GOLD] = GetCoinTextureString(COPPER_PER_GOLD),
-				[COPPER_PER_GOLD*1000] = GetCoinTextureString(COPPER_PER_GOLD * 1000),
+				[COPPER_PER_GOLD * 1000] = GetCoinTextureString(COPPER_PER_GOLD * 1000),
 			},
 		},
 		maxHistorySize = {

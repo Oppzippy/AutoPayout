@@ -1,4 +1,7 @@
-local addonName, addon = ...
+---@type string
+local addonName = ...
+---@class addon
+local addon = select(2, ...)
 
 local AceAddon = LibStub("AceAddon-3.0")
 local AceLocale = LibStub("AceLocale-3.0")
@@ -9,9 +12,13 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local L = AceLocale:GetLocale(addonName)
 addon.L = L
 
+---@class Core: AceAddon, AceConsole-3.0, EventHandler
 local Core = AceAddon:NewAddon(addonName, "AceConsole-3.0")
 addon.core = Core
 
+---@param recipient string
+---@param subject string
+---@param body string
 hooksecurefunc("SendMail", function(recipient, subject, body)
 	if Core.payoutExecutor then
 		local nextMail = Core.payoutExecutor:GetNextMail()
@@ -94,6 +101,7 @@ function Core:MAIL_SHOW()
 	end
 end
 
+---@param args string
 function Core:SlashPayout(args)
 	if args == "" then
 		if not self.payoutQueue then
@@ -130,7 +138,7 @@ function Core:ShowSetupPayoutFrame()
 end
 
 function Core:HideSetupPayoutFrame()
-	self.PayoutSetupFrame:Hide()
+	self.payoutSetupFrame:Hide()
 end
 
 function Core:OnShowPayoutProgressFrame(_, frame)

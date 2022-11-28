@@ -1,13 +1,22 @@
-local _, addon = ...
+---@class addon
+local addon = select(2, ...)
 
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 
+---@class PaymentExecutor: AceEvent-3.0
+---@field callbacks CallbackHandlerRegistry
+---@field payoutQueue PayoutQueue
+---@field frame Frame
+---@field RegisterCallback fun(self: table, eventName: string, method?: string)
+---@field UnregisterCallback fun(self: table, eventName: string)
+---@field UnregisterAllCallbacks fun(self: table)
 local PayoutExecutorPrototype = {}
-PayoutExecutorPrototype.__index = PayoutExecutorPrototype
 addon.PayoutExecutorPrototype = PayoutExecutorPrototype
 
+---@param payoutQueue table
+---@return PaymentExecutor
 function PayoutExecutorPrototype.Create(payoutQueue)
-	local payoutExecutor = setmetatable({}, PayoutExecutorPrototype)
+	local payoutExecutor = setmetatable({}, { __index = PayoutExecutorPrototype })
 	addon.EventHandler.Embed(payoutExecutor)
 	payoutExecutor.callbacks = CallbackHandler:New(payoutExecutor)
 	payoutExecutor.payoutQueue = payoutQueue
@@ -60,6 +69,7 @@ function PayoutExecutorPrototype:GetNextMail()
 	return self.payoutQueue:Peek()
 end
 
+---@param predictedMoney? number
 function PayoutExecutorPrototype:SendNext(predictedMoney)
 	local next = self.payoutQueue:Peek()
 	if not next then self:Halt() return end
@@ -76,6 +86,9 @@ function PayoutExecutorPrototype:SendNext(predictedMoney)
 	end
 end
 
+---@param payout table
+---@param predictedMoney? number
+---@return boolean
 function PayoutExecutorPrototype:CanSend(payout, predictedMoney)
 	if UnitIsUnit(payout.player, "player") then
 		-- Can not send mail to yourself

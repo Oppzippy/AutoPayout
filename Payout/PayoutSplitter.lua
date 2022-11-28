@@ -1,16 +1,24 @@
-local _, addon = ...
+---@class addon
+local addon = select(2, ...)
 
+---@class PayoutSplitter
+---@field splitAfterCopper number
+---@field maxSplits number
 local PayoutSplitterPrototype = {}
-PayoutSplitterPrototype.__index = PayoutSplitterPrototype
 addon.PayoutSplitterPrototype = PayoutSplitterPrototype
 
+---@param splitAfterCopper number
+---@param maxSplits number
+---@return PayoutSplitter
 function PayoutSplitterPrototype.Create(splitAfterCopper, maxSplits)
-	local splitter = setmetatable({}, PayoutSplitterPrototype)
+	local splitter = setmetatable({}, { __index = PayoutSplitterPrototype })
 	splitter.splitAfterCopper = splitAfterCopper
 	splitter.maxSplits = maxSplits
 	return splitter
 end
 
+---@param payments table
+---@return table
 function PayoutSplitterPrototype:SplitPayments(payments)
 	local t = {}
 	for _, payment in ipairs(payments) do
@@ -18,12 +26,14 @@ function PayoutSplitterPrototype:SplitPayments(payments)
 		for _, splitPaymentValue in ipairs(splitPaymentValues) do
 			local newPayment = self:ClonePayment(payment)
 			newPayment.copper = splitPaymentValue
-			t[#t+1] = newPayment
+			t[#t + 1] = newPayment
 		end
 	end
 	return t
 end
 
+---@param copper number
+---@return table
 function PayoutSplitterPrototype:SplitPayment(copper)
 	local t = {}
 	local count = 0
@@ -34,11 +44,13 @@ function PayoutSplitterPrototype:SplitPayment(copper)
 			payoutCopper = self.splitAfterCopper
 		end
 		copper = copper - payoutCopper
-		t[#t+1] = payoutCopper
+		t[#t + 1] = payoutCopper
 	end
 	return t
 end
 
+---@param payment table
+---@return table
 function PayoutSplitterPrototype:ClonePayment(payment)
 	local t = {}
 	for k, v in next, payment do

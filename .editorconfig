@@ -11,3 +11,7 @@ indent_size = 2
 [*.{lua,xml}]
 indent_style = tab
 indent_size = 4
+
+[.luarc.json]
+indent_style = space
+indent_size = 4

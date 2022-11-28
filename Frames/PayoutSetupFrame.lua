@@ -1,15 +1,22 @@
-local _, addon = ...
+---@class addon
+local addon = select(2, ...)
 
 local AceGUI = LibStub("AceGUI-3.0")
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 local L = addon.L
 
+---@class PayoutSetupFrame
+---@field callbacks CallbackHandlerRegistry
+---@field frames table
+---@field RegisterCallback fun(self: table, eventName: string, method?: string)
+---@field UnregisterCallback fun(self: table, eventName: string)
+---@field UnregisterAllCallbacks fun(self: table)
 local PayoutSetupFramePrototype = {}
-PayoutSetupFramePrototype.__index = PayoutSetupFramePrototype
 addon.PayoutSetupFramePrototype = PayoutSetupFramePrototype
 
+---@return PayoutSetupFrame
 function PayoutSetupFramePrototype.Create()
-	local frame = setmetatable({}, PayoutSetupFramePrototype)
+	local frame = setmetatable({}, { __index = PayoutSetupFramePrototype })
 	frame.callbacks = CallbackHandler:New(frame)
 	frame.frames = {}
 	return frame
@@ -21,6 +28,7 @@ end
 
 function PayoutSetupFramePrototype:CreateFrame()
 	local frame = AceGUI:Create("Frame")
+	---@cast frame AceGUIFrame
 	self.frames.frame = frame
 	frame:SetCallback("OnClose", function(widget)
 		self:Hide()
@@ -50,8 +58,10 @@ function PayoutSetupFramePrototype:CreateFrame()
 	frame:AddChild(self.frames.startButton)
 end
 
+---@return AceGUIEditBox
 function PayoutSetupFramePrototype:CreateSubjectBox()
 	local editBox = AceGUI:Create("EditBox")
+	---@cast editBox AceGUIEditBox
 	editBox:SetText(self:GetSubject())
 	editBox:SetLabel(L.subject)
 	editBox:SetMaxLetters(64)
@@ -66,12 +76,15 @@ function PayoutSetupFramePrototype:CreateSubjectBox()
 	return editBox
 end
 
+---@return string
 function PayoutSetupFramePrototype:GetSubject()
 	return self.subjectBoxText or addon.core.db.profile.defaultSubject
 end
 
+---@return AceGUIMultiLineEditBox
 function PayoutSetupFramePrototype:CreatePasteBox()
 	local editBox = AceGUI:Create("MultiLineEditBox")
+	---@cast editBox AceGUIMultiLineEditBox
 	editBox:SetText(self.pasteBoxText or "")
 	editBox:SetLabel(L.payout_csv)
 	editBox:SetNumLines(6)
@@ -84,17 +97,22 @@ function PayoutSetupFramePrototype:CreatePasteBox()
 	return editBox
 end
 
+---@return string
 function PayoutSetupFramePrototype:GetCSV()
 	return self.pasteBoxText or ""
 end
 
 do
+	---@param dropdown AceGUIDropdown
+	---@param copper number
 	local function AddDropdownUnit(dropdown, copper)
 		dropdown:AddItem(copper, GetCoinTextureString(copper))
 	end
 
+	---@return AceGUIDropdown
 	function PayoutSetupFramePrototype:CreateUnitSelection()
 		local dropdown = AceGUI:Create("Dropdown")
+		---@cast dropdown AceGUIDropdown
 		dropdown:SetLabel(L.unit)
 		AddDropdownUnit(dropdown, COPPER_PER_GOLD * 1000)
 		AddDropdownUnit(dropdown, COPPER_PER_GOLD)
@@ -108,12 +126,15 @@ do
 	end
 end
 
+---@return number
 function PayoutSetupFramePrototype:GetUnit()
 	return self.unit or addon.core.db.profile.defaultUnit
 end
 
+---@return AceGUIButton
 function PayoutSetupFramePrototype:CreateStartButton()
 	local button = AceGUI:Create("Button")
+	---@cast button AceGUIButton
 	button:SetText(L.next)
 	button:SetCallback("OnClick", function()
 		self.callbacks:Fire("OnStartPayout", self)
@@ -126,7 +147,7 @@ function PayoutSetupFramePrototype:UpdateStartButton()
 	local success, err = pcall(function() addon.PayoutQueuePrototype.ParseCSV(self.pasteBoxText) end)
 	self.frames.startButton:SetDisabled(not success)
 	if not success then
-		self.frames.frame:SetStatusText(err.message)
+		self.frames.frame:SetStatusText(err and err.message or "Unexpected error occurred")
 	else
 		self.frames.frame:SetStatusText("")
 	end
@@ -139,10 +160,12 @@ function PayoutSetupFramePrototype:Hide()
 	end
 end
 
+---@return boolean
 function PayoutSetupFramePrototype:IsVisible()
 	return self.frames.frame ~= nil
 end
 
+---@return table
 function PayoutSetupFramePrototype:GetPayments()
 	local csv = addon.PayoutQueuePrototype.ParseCSV(self.pasteBoxText)
 	local payments = {}

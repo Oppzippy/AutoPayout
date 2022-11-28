@@ -1,7 +1,8 @@
-local _, addon = ...
+---@class addon
+local addon = select(2, ...)
 
+---@class EventHandler
 local EventHandler = {}
-
 addon.EventHandler = EventHandler
 
 local frame = CreateFrame("Frame")
@@ -14,6 +15,14 @@ frame:SetScript("OnEvent", function(_, event, ...)
 	end
 end)
 
+---@class EventHandler
+---@field RegisterEvent fun(self: EventHandler, event: string, callback?: string)
+---@field UnregisterEvent fun(self: EventHandler, event: string)
+---@field UnregisterAllEvents fun(self: EventHandler)
+
+---@param self table
+---@param event string
+---@param callback string
 local function RegisterEvent(self, event, callback)
 	assert(type(self[callback]) == "function", "Callback function must be set")
 	frame:RegisterEvent(event)
@@ -21,6 +30,8 @@ local function RegisterEvent(self, event, callback)
 	callbacks[event][self] = callback
 end
 
+---@param self table
+---@param event string
 local function UnregisterEvent(self, event)
 	local eventCallbacks = callbacks[event]
 	if eventCallbacks and eventCallbacks[self] then
@@ -32,6 +43,7 @@ local function UnregisterEvent(self, event)
 	end
 end
 
+---@param self table
 local function UnregisterAllEvents(self)
 	for event, _ in next, callbacks do
 		UnregisterEvent(self, event)

@@ -1,32 +1,42 @@
-local _, addon = ...
+---@class addon
+local addon = select(2, ...)
 
 local AceGUI = LibStub("AceGUI-3.0")
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 local L = addon.L
 
+---@class PayoutProgressFrame
+---@field callbacks CallbackHandlerRegistry
+---@field frames table
+---@field RegisterCallback fun(self: table, eventName: string, method?: string)
+---@field UnregisterCallback fun(self: table, eventName: string)
+---@field UnregisterAllCallbacks fun(self: table)
 local PayoutProgressFramePrototype = {}
-PayoutProgressFramePrototype.__index = PayoutProgressFramePrototype
 addon.PayoutProgressFramePrototype = PayoutProgressFramePrototype
 
 local DEFAULT_IMAGE = "Interface\\RAIDFRAME\\ReadyCheck-Waiting"
 local PAID_IMAGE = "Interface\\RAIDFRAME\\ReadyCheck-Ready"
 local UNPAID_IMAGE = "Interface\\RAIDFRAME\\ReadyCheck-NotReady"
 
+---@return PayoutProgressFrame
 function PayoutProgressFramePrototype.Create()
-	local frame = setmetatable({}, PayoutProgressFramePrototype)
+	local frame = setmetatable({}, { __index = PayoutProgressFramePrototype })
 	frame.callbacks = CallbackHandler:New(frame)
 	frame.frames = {}
 	return frame
 end
 
+---@return number
 function PayoutProgressFramePrototype:GetUnit()
 	return self.unit or addon.core.db.profile.defaultUnit
 end
 
+---@param unit number
 function PayoutProgressFramePrototype:SetUnit(unit)
 	self.unit = unit
 end
 
+---@param payoutQueue table
 function PayoutProgressFramePrototype:Show(payoutQueue)
 	self.payoutQueue = payoutQueue
 
@@ -36,8 +46,10 @@ function PayoutProgressFramePrototype:Show(payoutQueue)
 	self:UpdateUnpaidCSV()
 end
 
+---@return AceGUIFrame
 function PayoutProgressFramePrototype:CreateFrame()
 	local frame = AceGUI:Create("Frame")
+	---@cast frame AceGUIFrame
 	frame:SetCallback("OnClose", function(widget)
 		self:Hide()
 	end)
@@ -69,10 +81,12 @@ end
 
 function PayoutProgressFramePrototype:CreateDetailedProgressList()
 	local scrollContainer = AceGUI:Create("SimpleGroup")
+	---@cast scrollContainer AceGUISimpleGroup
 	scrollContainer:SetFullWidth(true)
 	scrollContainer:SetHeight(300)
 	scrollContainer:SetLayout("Fill")
 	local scrollFrame = AceGUI:Create("ScrollFrame")
+	---@cast scrollFrame AceGUIScrollFrame
 	scrollFrame:SetLayout("Flow")
 	scrollContainer:AddChild(scrollFrame)
 	return scrollContainer, scrollFrame
@@ -83,6 +97,7 @@ function PayoutProgressFramePrototype:UpdateProgressList()
 	self.frames.detailedPayoutListingLabels = {}
 	for payout in self.payoutQueue:IteratePayouts() do
 		local label = AceGUI:Create("Label")
+		---@cast label AceGUILabel
 		label:SetText(string.format("%s - %s", payout.player, GetCoinTextureString(payout.copper)))
 		if type(payout.isPaid) == "boolean" then
 			label:SetImage(payout.isPaid and PAID_IMAGE or UNPAID_IMAGE)
@@ -90,14 +105,16 @@ function PayoutProgressFramePrototype:UpdateProgressList()
 			label:SetImage(DEFAULT_IMAGE)
 		end
 		label:SetFullWidth(true)
-		label:SetJustifyV("CENTER")
+		label:SetJustifyV("MIDDLE")
 		self.frames.scrollFrame:AddChild(label)
 		self.frames.detailedPayoutListingLabels[payout.id] = label
 	end
 end
 
+---@return AceGUIButton
 function PayoutProgressFramePrototype:CreateStartButton()
 	local button = AceGUI:Create("Button")
+	---@cast button AceGUIButton
 	button:SetText(L.start)
 	button:SetCallback("OnClick", function()
 		if not self.isPayoutInProgress then
@@ -115,6 +132,7 @@ function PayoutProgressFramePrototype:CreateStartButton()
 	return button
 end
 
+---@param isDown boolean
 function PayoutProgressFramePrototype:SetStartButtonState(isDown)
 	self.isPayoutInProgress = isDown
 	if self.frames.frame then
@@ -123,8 +141,10 @@ function PayoutProgressFramePrototype:SetStartButtonState(isDown)
 	end
 end
 
+---@return AceGUIButton
 function PayoutProgressFramePrototype:CreateDoneButton()
 	local button = AceGUI:Create("Button")
+	---@cast button AceGUIButton
 	button:SetText(L.done)
 	button:SetCallback("OnClick", function()
 		self.callbacks:Fire("OnDone", self)
@@ -132,8 +152,10 @@ function PayoutProgressFramePrototype:CreateDoneButton()
 	return button
 end
 
+---@return AceGUIMultiLineEditBox
 function PayoutProgressFramePrototype:CreateCSVBox()
 	local editBox = AceGUI:Create("MultiLineEditBox")
+	---@cast editBox AceGUIMultiLineEditBox
 	editBox:SetLabel(L.unsent_mail)
 	editBox:SetText(self.csv or "")
 	editBox:SetFullWidth(true)
@@ -151,15 +173,17 @@ function PayoutProgressFramePrototype:UpdateUnpaidCSV()
 	self.frames.csvBox:SetText(self.csv)
 end
 
+---@return string
 function PayoutProgressFramePrototype:GetUnpaidCSV()
 	return self.csv
 end
 
+---@return table
 function PayoutProgressFramePrototype:GetUnpaidTable()
 	local t = {}
 	for payout in self.payoutQueue:IteratePayouts() do
 		if not payout.isPaid then
-			t[#t+1] = { payout.player, payout.copper / self.unit }
+			t[#t + 1] = { payout.player, payout.copper / self.unit }
 		end
 	end
 	return t
@@ -172,6 +196,7 @@ function PayoutProgressFramePrototype:Hide()
 	end
 end
 
+---@return boolean
 function PayoutProgressFramePrototype:IsVisible()
 	return self.frames.frame ~= nil
 end
