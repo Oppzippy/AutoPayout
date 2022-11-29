@@ -1,7 +1,3 @@
 {
-    "diagnostics.globals": [
-        "MailFrame",
-        "COPPER_PER_SILVER",
-        "COPPER_PER_GOLD"
-    ]
+    "diagnostics.globals": ["MailFrame", "COPPER_PER_SILVER", "COPPER_PER_GOLD"]
 }

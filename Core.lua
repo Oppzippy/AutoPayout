@@ -8,6 +8,7 @@ local AceLocale = LibStub("AceLocale-3.0")
 local AceDB = LibStub("AceDB-3.0")
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+local AceGUI = LibStub("AceGUI-3.0")
 
 local L = AceLocale:GetLocale(addonName)
 addon.L = L
@@ -46,8 +47,6 @@ function Core:ResetState()
 	end
 	self.payoutQueue = nil
 	self.historyRecord = nil
-	if self.payoutSetupFrame then self.payoutSetupFrame:Hide() end
-	if self.payoutProgressFrame then self.payoutProgressFrame:Hide() end
 	self:CreatePayoutSetupFrame()
 	self.payoutProgressFrame = nil
 end
@@ -68,6 +67,8 @@ function Core:OnPayoutProgressFrameDone()
 	table.insert(self.db.profile.history, 1, self.historyRecord)
 	self:WipeOldHistory()
 	self:ResetState()
+	self.tabGroup:ReleaseChildren()
+	self.tabGroup:AddChild(self.payoutSetupFrame:Show())
 end
 
 function Core:WipeOldHistory()
@@ -104,41 +105,56 @@ end
 ---@param args string
 function Core:SlashPayout(args)
 	if args == "" then
-		if not self.payoutQueue then
-			if self.payoutSetupFrame:IsVisible() then
-				self.payoutSetupFrame:Hide()
-			else
-				self.payoutSetupFrame:Show()
-			end
-		else
-			if self.payoutProgressFrame:IsVisible() then
-				self.payoutProgressFrame:Hide()
-			else
-				self.payoutProgressFrame:Show(self.payoutQueue)
-			end
-		end
-	elseif args == "history" then
-		if not self.historyFrame then
-			self.historyFrame = addon.HistoryFramePrototype.Create()
-			self.historyFrame:Show(self.db.profile.history)
-			self.historyFrame.RegisterCallback(self, "OnClose", "OnHistoryFrameClose")
-		else
-			self.historyFrame:Hide()
-			self.historyFrame = nil
-		end
+		self:Show()
 	end
+end
+
+function Core:Show()
+	local frame = AceGUI:Create("Frame")
+	---@cast frame AceGUIFrame
+	frame:SetCallback("OnHide", function()
+		frame:Release()
+	end)
+	frame:SetTitle(L.addon_name)
+	frame:SetLayout("Fill")
+
+	local tabGroup = AceGUI:Create("TabGroup")
+	---@cast tabGroup AceGUITabGroup
+	tabGroup:SetLayout("Fill")
+	self.tabGroup = tabGroup
+	frame:AddChild(tabGroup)
+
+	tabGroup:SetCallback("OnGroupSelected", function(_, _, group)
+		tabGroup:ReleaseChildren()
+		if group == "payout-setup" then
+			if not self.payoutQueue then
+				tabGroup:AddChild(self.payoutSetupFrame:Show())
+			else
+				tabGroup:AddChild(self.payoutProgressFrame:Show(self.payoutQueue))
+			end
+		elseif group == "payout-history" then
+			self.historyFrame = addon.HistoryFramePrototype.Create()
+			tabGroup:AddChild(self.historyFrame:Show(self.db.profile.history))
+			self.historyFrame.RegisterCallback(self, "OnClose", "OnHistoryFrameClose")
+		end
+	end)
+
+	tabGroup:SetTabs({
+		{
+			text = L.payout_setup,
+			value = "payout-setup",
+		},
+		{
+			text = L.payout_history,
+			value = "payout-history",
+		},
+	})
+
+	tabGroup:SelectTab("payout-setup")
 end
 
 function Core:OnHistoryFrameClose()
 	self.historyFrame = nil
-end
-
-function Core:ShowSetupPayoutFrame()
-	self.payoutSetupFrame:Show()
-end
-
-function Core:HideSetupPayoutFrame()
-	self.payoutSetupFrame:Hide()
 end
 
 function Core:OnShowPayoutProgressFrame(_, frame)
@@ -152,6 +168,9 @@ function Core:OnShowPayoutProgressFrame(_, frame)
 	self.payoutProgressFrame:SetUnit(frame:GetUnit())
 	self.payoutProgressFrame:Show(self.payoutQueue)
 	self.payoutProgressFrame.RegisterCallback(self, "DoStopPayout", "StopPayout")
+
+	self.tabGroup:ReleaseChildren()
+	self.tabGroup:AddChild(self.payoutProgressFrame:Show(self.payoutQueue))
 
 	self.historyRecord = {
 		timestamp = GetServerTime(),

@@ -37,6 +37,7 @@ function PayoutProgressFramePrototype:SetUnit(unit)
 end
 
 ---@param payoutQueue table
+---@return AceGUISimpleGroup
 function PayoutProgressFramePrototype:Show(payoutQueue)
 	self.payoutQueue = payoutQueue
 
@@ -44,21 +45,20 @@ function PayoutProgressFramePrototype:Show(payoutQueue)
 
 	self:UpdateProgressList()
 	self:UpdateUnpaidCSV()
+
+	return self.frames.frame
 end
 
----@return AceGUIFrame
+---@return AceGUISimpleGroup
 function PayoutProgressFramePrototype:CreateFrame()
-	local frame = AceGUI:Create("Frame")
-	---@cast frame AceGUIFrame
-	frame:SetCallback("OnClose", function(widget)
-		self:Hide()
+	local frame = AceGUI:Create("SimpleGroup")
+	---@cast frame AceGUISimpleGroup
+	frame:SetCallback("OnRelease", function()
+		self.frames = {}
 	end)
 	frame:SetWidth(500)
 	frame:SetHeight(600)
-	frame:EnableResize(false)
 	frame:SetLayout("Flow")
-
-	frame:SetTitle(L.payout)
 
 	local frames = self.frames
 
@@ -79,6 +79,8 @@ function PayoutProgressFramePrototype:CreateFrame()
 	return frame
 end
 
+---@return AceGUISimpleGroup
+---@return AceGUIScrollFrame
 function PayoutProgressFramePrototype:CreateDetailedProgressList()
 	local scrollContainer = AceGUI:Create("SimpleGroup")
 	---@cast scrollContainer AceGUISimpleGroup
@@ -137,7 +139,7 @@ function PayoutProgressFramePrototype:SetStartButtonState(isDown)
 	self.isPayoutInProgress = isDown
 	if self.frames.frame then
 		self.frames.startButton:SetText(isDown and L.pause or L.start)
-		self.frames.frame:SetStatusText(isDown and L.payout_in_progress or "")
+		-- self.frames.frame:SetStatusText(isDown and L.payout_in_progress or "")
 	end
 end
 
@@ -187,13 +189,6 @@ function PayoutProgressFramePrototype:GetUnpaidTable()
 		end
 	end
 	return t
-end
-
-function PayoutProgressFramePrototype:Hide()
-	if self.frames.frame then
-		AceGUI:Release(self.frames.frame)
-		self.frames = {}
-	end
 end
 
 ---@return boolean

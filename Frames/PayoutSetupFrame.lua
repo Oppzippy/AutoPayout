@@ -22,23 +22,22 @@ function PayoutSetupFramePrototype.Create()
 	return frame
 end
 
+---@return AceGUISimpleGroup
 function PayoutSetupFramePrototype:Show()
-	self:CreateFrame()
+	return self:CreateFrame()
 end
 
+---@return AceGUISimpleGroup
 function PayoutSetupFramePrototype:CreateFrame()
-	local frame = AceGUI:Create("Frame")
-	---@cast frame AceGUIFrame
+	local frame = AceGUI:Create("SimpleGroup")
+	---@cast frame AceGUISimpleGroup
 	self.frames.frame = frame
-	frame:SetCallback("OnClose", function(widget)
-		self:Hide()
+	frame:SetCallback("OnRelease", function()
+		self.frames = {}
 	end)
 	frame:SetWidth(500)
 	frame:SetHeight(325)
-	frame:EnableResize(false)
 	frame:SetLayout("Flow")
-
-	frame:SetTitle(L.payout_setup)
 
 	self.frames.subjectBox = self:CreateSubjectBox()
 	self.frames.subjectBox:SetRelativeWidth(1)
@@ -56,6 +55,8 @@ function PayoutSetupFramePrototype:CreateFrame()
 	self:UpdateStartButton()
 	self.frames.startButton:SetRelativeWidth(1)
 	frame:AddChild(self.frames.startButton)
+
+	return frame
 end
 
 ---@return AceGUIEditBox
@@ -138,7 +139,6 @@ function PayoutSetupFramePrototype:CreateStartButton()
 	button:SetText(L.next)
 	button:SetCallback("OnClick", function()
 		self.callbacks:Fire("OnStartPayout", self)
-		self:Hide()
 	end)
 	return button
 end
@@ -147,16 +147,10 @@ function PayoutSetupFramePrototype:UpdateStartButton()
 	local success, err = pcall(function() addon.PayoutQueuePrototype.ParseCSV(self.pasteBoxText) end)
 	self.frames.startButton:SetDisabled(not success)
 	if not success then
-		self.frames.frame:SetStatusText(err and err.message or "Unexpected error occurred")
+		-- TODO add error display
+		-- self.frames.frame:SetStatusText(err and err.message or "Unexpected error occurred")
 	else
-		self.frames.frame:SetStatusText("")
-	end
-end
-
-function PayoutSetupFramePrototype:Hide()
-	if self.frames.frame then
-		self.frames.frame:Release()
-		self.frames = {}
+		-- self.frames.frame:SetStatusText("")
 	end
 end
 

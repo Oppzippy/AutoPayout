@@ -22,26 +22,27 @@ function HistoryFramePrototype.Create()
 	return frame
 end
 
+---@param history table
+---@return AceGUISimpleGroup
 function HistoryFramePrototype:Show(history)
 	self.history = history
 
 	self.frame = self:CreateFrame()
 	self:RenderRecords()
+	return self.frame
 end
 
 function HistoryFramePrototype:CreateFrame()
-	local frame = AceGUI:Create("Frame")
-	---@cast frame AceGUIFrame
+	local frame = AceGUI:Create("SimpleGroup")
+	---@cast frame AceGUISimpleGroup
 	self.frames.frame = frame
-	frame:SetCallback("OnClose", function(widget)
-		self:Hide()
+	frame:SetCallback("OnRelease", function()
+		self.callbacks:Fire("OnClose")
+		self.frames = {}
 	end)
 	frame:SetWidth(500)
 	frame:SetHeight(600)
-	frame:EnableResize(false)
 	frame:SetLayout("Flow")
-
-	frame:SetTitle(L.payout_history)
 
 	self.frames.scrollContainer, self.frames.scrollFrame = self:CreateScrollFrame()
 	frame:AddChild(self.frames.scrollContainer)
@@ -108,11 +109,4 @@ function HistoryFramePrototype:CreateRecordBox(label, text)
 		box:SetText(text)
 	end)
 	return box
-end
-
-function HistoryFramePrototype:Hide()
-	if self.frame then
-		self.frame:Release()
-		self.callbacks:Fire("OnClose")
-	end
 end
