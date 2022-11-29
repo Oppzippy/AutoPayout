@@ -94,17 +94,17 @@ function HistoryFramePrototype:RenderRecord(record)
 end
 
 ---@param label string
----@param text string
+---@param text? string
 ---@return AceGUIMultiLineEditBox
 function HistoryFramePrototype:CreateRecordBox(label, text)
 	local box = AceGUI:Create("MultiLineEditBox")
 	---@cast box AceGUIMultiLineEditBox
 	box:SetLabel(label)
-	box:SetText(text)
+	box:SetText(text or "")
 	box:SetNumLines(3)
 	box:DisableButton(true)
 	box:SetCallback("OnTextChanged", function()
-		box:SetText(text)
+		box:SetText(text or "")
 	end)
 	return box
 end

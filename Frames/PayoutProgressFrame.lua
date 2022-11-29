@@ -188,7 +188,10 @@ end
 function PayoutProgressFramePrototype:UpdateUnpaidCSV()
 	local t = self:GetUnpaidTable()
 	self.csv = addon.CSV.ToCSV(t)
-	self.frames.csvBox:SetText(self.csv)
+	if self.frames.csvBox then
+		-- If you switch tabs at the right time, this can trigger while csvBox is nil
+		self.frames.csvBox:SetText(self.csv)
+	end
 end
 
 ---@return string

@@ -104,7 +104,6 @@ function Core:ResetState()
 		self.payoutExecutor = nil
 	end
 	self.payoutQueue = nil
-	self.historyRecord = nil
 	self:CreatePayoutSetupFrame()
 	self.payoutProgressFrame = nil
 end
@@ -129,8 +128,8 @@ function Core:OnStatusMessage(_, text)
 end
 
 function Core:OnPayoutProgressFrameDone()
-	self.historyRecord.output = self.payoutProgressFrame:GetUnpaidCSV()
-	table.insert(self.db.profile.history, 1, self.historyRecord)
+	-- The entry was created already and inserted at the front of the table
+	self.db.profile.history[1].output = self.payoutProgressFrame:GetUnpaidCSV()
 	self:WipeOldHistory()
 	self:ResetState()
 
@@ -181,7 +180,7 @@ function Core:OnShowPayoutProgressFrame(_, frame)
 
 	self:DisplayTab("payout-setup") -- Refresh display
 
-	self.historyRecord = {
+	local historyRecord = {
 		timestamp = GetServerTime(),
 		unit = frame:GetUnit(),
 		sender = {
@@ -190,6 +189,7 @@ function Core:OnShowPayoutProgressFrame(_, frame)
 		},
 		input = frame:GetCSV(),
 	}
+	table.insert(self.db.profile.history, 1, historyRecord)
 end
 
 function Core:SplitPayments(payments)
@@ -226,6 +226,9 @@ end
 
 function Core:OnMailSent(_, _, payout)
 	self.payoutProgressFrame:MarkPaid(payout)
+	-- The entry was created already and inserted at the front of the table
+	self.payoutProgressFrame:UpdateUnpaidCSV()
+	self.db.profile.history[1].output = self.payoutProgressFrame:GetUnpaidCSV()
 end
 
 function Core:OnMailFailed(_, _, payout)
