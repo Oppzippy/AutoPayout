@@ -1,7 +1,9 @@
+-- This is needed instead of using AceEvent because AceEvent holds references to everything that it is embedded in,
+-- so it will prevent those tables from getting garbage collected.
+
 ---@class addon
 local addon = select(2, ...)
 
----@class EventHandler
 local EventHandler = {}
 addon.EventHandler = EventHandler
 
@@ -50,6 +52,10 @@ local function UnregisterAllEvents(self)
 	end
 end
 
+---@param t table
+---@param registerEventName? string
+---@param unregisterEventName? string
+---@param unregisterAllEventsName? string
 function EventHandler.Embed(t, registerEventName, unregisterEventName, unregisterAllEventsName)
 	registerEventName = registerEventName or "RegisterEvent"
 	unregisterEventName = unregisterEventName or "UnregisterEvent"
