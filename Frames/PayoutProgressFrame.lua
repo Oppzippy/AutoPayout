@@ -56,8 +56,6 @@ function PayoutProgressFramePrototype:CreateFrame()
 	frame:SetCallback("OnRelease", function()
 		self.frames = {}
 	end)
-	frame:SetWidth(500)
-	frame:SetHeight(600)
 	frame:SetLayout("Flow")
 
 	local frames = self.frames
@@ -70,12 +68,30 @@ function PayoutProgressFramePrototype:CreateFrame()
 	frames.doneButton:SetRelativeWidth(0.5)
 	frame:AddChild(frames.doneButton)
 
+	-- None of the default AceGUI provide the option to have two frames scale in height together,
+	-- so pause the layout and use SetPoint manually
+	local pausedLayoutGroup = AceGUI:Create("SimpleGroup")
+	---@cast pausedLayoutGroup AceGUISimpleGroup
+	pausedLayoutGroup:SetFullWidth(true)
+	pausedLayoutGroup:SetFullHeight(true)
+	pausedLayoutGroup:PauseLayout()
+	frame:AddChild(pausedLayoutGroup)
+
 	frames.scrollContainer, frames.scrollFrame = self:CreateDetailedProgressList()
-	frame:AddChild(frames.scrollContainer)
+	pausedLayoutGroup:AddChild(frames.scrollContainer)
+
+	---@diagnostic disable-next-line: undefined-field
+	frames.scrollContainer:SetPoint("TOPLEFT", pausedLayoutGroup.frame, "TOPLEFT", 0, 0)
+	---@diagnostic disable-next-line: undefined-field
+	frames.scrollContainer:SetPoint("BOTTOMRIGHT", pausedLayoutGroup.frame, "RIGHT")
 
 	frames.csvBox = self:CreateCSVBox()
-	frame:AddChild(frames.csvBox)
+	pausedLayoutGroup:AddChild(frames.csvBox)
 
+	---@diagnostic disable-next-line: undefined-field
+	frames.csvBox:SetPoint("TOPLEFT", frames.scrollContainer.frame, "BOTTOMLEFT", 0, 0)
+	---@diagnostic disable-next-line: undefined-field
+	frames.csvBox:SetPoint("BOTTOMRIGHT", pausedLayoutGroup.frame, "BOTTOMRIGHT", 0, 0)
 	return frame
 end
 
@@ -139,7 +155,7 @@ function PayoutProgressFramePrototype:SetStartButtonState(isDown)
 	self.isPayoutInProgress = isDown
 	if self.frames.frame then
 		self.frames.startButton:SetText(isDown and L.pause or L.start)
-		-- self.frames.frame:SetStatusText(isDown and L.payout_in_progress or "")
+		self.callbacks:Fire("OnStatusMessage", isDown and L.payout_in_progress or "")
 	end
 end
 

@@ -40,8 +40,6 @@ function HistoryFramePrototype:CreateFrame()
 		self.callbacks:Fire("OnClose")
 		self.frames = {}
 	end)
-	frame:SetWidth(500)
-	frame:SetHeight(600)
 	frame:SetLayout("Flow")
 
 	self.frames.scrollContainer, self.frames.scrollFrame = self:CreateScrollFrame()

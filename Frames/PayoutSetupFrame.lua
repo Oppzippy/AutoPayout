@@ -8,6 +8,7 @@ local L = addon.L
 ---@class PayoutSetupFrame
 ---@field callbacks CallbackHandlerRegistry
 ---@field frames table
+---@field pasteBoxText string
 ---@field RegisterCallback fun(self: table, eventName: string, method?: string)
 ---@field UnregisterCallback fun(self: table, eventName: string)
 ---@field UnregisterAllCallbacks fun(self: table)
@@ -19,6 +20,7 @@ function PayoutSetupFramePrototype.Create()
 	local frame = setmetatable({}, { __index = PayoutSetupFramePrototype })
 	frame.callbacks = CallbackHandler:New(frame)
 	frame.frames = {}
+	frame.pasteBoxText = ""
 	return frame
 end
 
@@ -35,8 +37,6 @@ function PayoutSetupFramePrototype:CreateFrame()
 	frame:SetCallback("OnRelease", function()
 		self.frames = {}
 	end)
-	frame:SetWidth(500)
-	frame:SetHeight(325)
 	frame:SetLayout("Flow")
 
 	self.frames.subjectBox = self:CreateSubjectBox()
@@ -144,13 +144,13 @@ function PayoutSetupFramePrototype:CreateStartButton()
 end
 
 function PayoutSetupFramePrototype:UpdateStartButton()
-	local success, err = pcall(function() addon.PayoutQueuePrototype.ParseCSV(self.pasteBoxText) end)
-	self.frames.startButton:SetDisabled(not success)
-	if not success then
-		-- TODO add error display
-		-- self.frames.frame:SetStatusText(err and err.message or "Unexpected error occurred")
+	local success, result = pcall(function() return addon.PayoutQueuePrototype.ParseCSV(self.pasteBoxText) end)
+	if success then
+		self.frames.startButton:SetDisabled(#result == 0)
+		self.callbacks:Fire("OnStatusMessage", "")
 	else
-		-- self.frames.frame:SetStatusText("")
+		self.frames.startButton:SetDisabled(true)
+		self.callbacks:Fire("OnStatusMessage", result and result.message or result)
 	end
 end
 
