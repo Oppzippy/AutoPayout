@@ -128,11 +128,23 @@ function Core:OnStatusMessage(_, text)
 end
 
 function Core:OnPayoutProgressFrameDone()
-	-- The entry was created already and inserted at the front of the table
-	self.db.profile.history[1].output = self.payoutProgressFrame:GetUnpaidCSV()
-	self:ResetState()
+	if self.payoutExecutor then
+		self.payoutExecutor:Halt()
+	end
+	-- Make sure any pending mail gets sent before resetting everything so they are included in history
+	if not self.doneTicker then
+		self.doneTicker = C_Timer.NewTicker(0, function()
+			if not C_Mail.IsCommandPending() then
+				-- The entry was created already and inserted at the front of the table
+				self.db.profile.history[1].output = self.payoutProgressFrame:GetUnpaidCSV()
+				self:ResetState()
 
-	self:DisplayTab("payout-setup")
+				self:DisplayTab("payout-setup")
+				self.doneTicker:Cancel()
+				self.doneTicker = nil
+			end
+		end)
+	end
 end
 
 function Core:WipeOldHistory()
