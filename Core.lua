@@ -166,6 +166,8 @@ function Core:OnHistoryFrameClose()
 	self.historyFrame = nil
 end
 
+---@param _ any
+---@param frame PayoutSetupFrame
 function Core:OnShowPayoutProgressFrame(_, frame)
 	local payments = self:SplitPayments(frame:GetPayments())
 	local success, err = pcall(function()
@@ -180,6 +182,7 @@ function Core:OnShowPayoutProgressFrame(_, frame)
 
 	self:DisplayTab("payout-setup") -- Refresh display
 
+	local csv = frame:GetCSV()
 	local historyRecord = {
 		timestamp = GetServerTime(),
 		unit = frame:GetUnit(),
@@ -187,7 +190,8 @@ function Core:OnShowPayoutProgressFrame(_, frame)
 			name = UnitName("player"),
 			realm = GetRealmName(),
 		},
-		input = frame:GetCSV(),
+		input = csv,
+		output = csv,
 	}
 	table.insert(self.db.profile.history, 1, historyRecord)
 end
