@@ -215,6 +215,8 @@ function Core:SplitPayments(payments)
 end
 
 function Core:StartPayout()
+	-- don't allow restarting the payout when we're trying to stop it
+	if self.doneTicker then return end
 	if not self.payoutQueue then error("Tried to start payout with no payout queue") end
 	if not self.payoutExecutor then
 		self.payoutExecutor = addon.PayoutExecutorPrototype.Create(self.payoutQueue)
