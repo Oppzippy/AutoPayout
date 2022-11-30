@@ -2,7 +2,7 @@
 
 World of Warcraft addon for sending out gold to large numbers of players quickly.
 
-[demo.webm](https://user-images.githubusercontent.com/2236514/197667444-d9a6b089-4ae9-4b51-981e-4fe2bc87c2c6.webm)
+[demo.webm](https://user-images.githubusercontent.com/2236514/204931427-18f1663f-fa15-486d-90d2-685ecc6011f9.webm)
 
 ## Download
 
@@ -14,7 +14,6 @@ World of Warcraft addon for sending out gold to large numbers of players quickly
 ## Commands
 
 /payout - Toggle AutoPayout UI  
-/payout history - Show list of past payouts
 
 ## Usage
 
