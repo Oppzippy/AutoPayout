@@ -15,13 +15,11 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install luarocks
-        run: sudo apt-get install luarocks lua-check
+        run: sudo apt-get install luarocks
       - name: Install luaunit
         run: sudo luarocks install luaunit
       - name: Run tests
         run: lua Tests/Test.lua
-      - name: Lint
-        run: luacheck .
       - name: Package and release
         uses: BigWigsMods/packager@v2
         env:
