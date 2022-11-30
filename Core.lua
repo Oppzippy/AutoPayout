@@ -138,10 +138,8 @@ end
 function Core:WipeOldHistory()
 	local maxHistorySize = self.db.profile.maxHistorySize
 	local history = self.db.profile.history
-	if #history > maxHistorySize then
-		for i = maxHistorySize + 1, #history do
-			history[i] = nil
-		end
+	for i = maxHistorySize + 1, #history do
+		history[i] = nil
 	end
 end
 
