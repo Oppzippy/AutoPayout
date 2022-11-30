@@ -81,6 +81,12 @@ function HistoryFramePrototype:RenderRecord(record)
 	container:SetTitle(date(L.date_time, record.timestamp))
 	container:SetLayout("Flow")
 
+	local unitLabel = AceGUI:Create("Label")
+	---@cast unitLabel AceGUILabel
+	unitLabel:SetText(L.unit_with_value:format(GetCoinTextureString(record.unit)))
+	unitLabel:SetFullWidth(true)
+	container:AddChild(unitLabel)
+
 	local inputBox = self:CreateRecordBox(L.input, record.input)
 	local outputBox = self:CreateRecordBox(L.output, record.output)
 
