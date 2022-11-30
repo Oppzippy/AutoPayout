@@ -130,7 +130,6 @@ end
 function Core:OnPayoutProgressFrameDone()
 	-- The entry was created already and inserted at the front of the table
 	self.db.profile.history[1].output = self.payoutProgressFrame:GetUnpaidCSV()
-	self:WipeOldHistory()
 	self:ResetState()
 
 	self:DisplayTab("payout-setup")
@@ -193,6 +192,7 @@ function Core:OnShowPayoutProgressFrame(_, frame)
 		input = csv,
 		output = csv,
 	}
+	self:WipeOldHistory()
 	table.insert(self.db.profile.history, 1, historyRecord)
 end
 
