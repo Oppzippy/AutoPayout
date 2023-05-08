@@ -12,6 +12,8 @@ jobs:
 
       - name: Update TOC Interface version
         uses: oppzippy/update-toc-action@v1
+        with:
+          toc-path: AutoPayout.toc
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v5
