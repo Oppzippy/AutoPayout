@@ -1,4 +1,4 @@
-## Interface: 100105
+## Interface: 100107
 ## Title: Auto Payout
 ## Notes: Automatically send payouts through in game mail.
 ## Author: Oppzippy
