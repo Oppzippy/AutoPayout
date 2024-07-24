@@ -31,10 +31,10 @@ addon.options = {
 			name = L.default_unit,
 			type = "select",
 			values = {
-				[1] = GetCoinTextureString(1),
-				[COPPER_PER_SILVER] = GetCoinTextureString(COPPER_PER_SILVER),
-				[COPPER_PER_GOLD] = GetCoinTextureString(COPPER_PER_GOLD),
-				[COPPER_PER_GOLD * 1000] = GetCoinTextureString(COPPER_PER_GOLD * 1000),
+				[1] = C_CurrencyInfo.GetCoinTextureString(1),
+				[COPPER_PER_SILVER] = C_CurrencyInfo.GetCoinTextureString(COPPER_PER_SILVER),
+				[COPPER_PER_GOLD] = C_CurrencyInfo.GetCoinTextureString(COPPER_PER_GOLD),
+				[COPPER_PER_GOLD * 1000] = C_CurrencyInfo.GetCoinTextureString(COPPER_PER_GOLD * 1000),
 			},
 		},
 		maxHistorySize = {

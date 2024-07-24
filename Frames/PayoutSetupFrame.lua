@@ -107,7 +107,7 @@ do
 	---@param dropdown AceGUIDropdown
 	---@param copper number
 	local function AddDropdownUnit(dropdown, copper)
-		dropdown:AddItem(copper, GetCoinTextureString(copper))
+		dropdown:AddItem(copper, C_CurrencyInfo.GetCoinTextureString(copper))
 	end
 
 	---@return AceGUIDropdown

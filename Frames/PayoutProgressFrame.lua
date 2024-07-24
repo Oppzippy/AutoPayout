@@ -116,7 +116,7 @@ function PayoutProgressFramePrototype:UpdateProgressList()
 	for payout in self.payoutQueue:IteratePayouts() do
 		local label = AceGUI:Create("Label")
 		---@cast label AceGUILabel
-		label:SetText(string.format("%s - %s", payout.player, GetCoinTextureString(payout.copper)))
+		label:SetText(string.format("%s - %s", payout.player, C_CurrencyInfo.GetCoinTextureString(payout.copper)))
 		if type(payout.isPaid) == "boolean" then
 			label:SetImage(payout.isPaid and PAID_IMAGE or UNPAID_IMAGE)
 		else

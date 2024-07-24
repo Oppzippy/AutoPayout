@@ -83,7 +83,7 @@ function HistoryFramePrototype:RenderRecord(record)
 
 	local unitLabel = AceGUI:Create("Label")
 	---@cast unitLabel AceGUILabel
-	unitLabel:SetText(L.unit_with_value:format(GetCoinTextureString(record.unit)))
+	unitLabel:SetText(L.unit_with_value:format(C_CurrencyInfo.GetCoinTextureString(record.unit)))
 	unitLabel:SetFullWidth(true)
 	container:AddChild(unitLabel)
 
