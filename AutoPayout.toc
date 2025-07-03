@@ -1,6 +1,7 @@
 ## Interface: 110107
 ## Interface-Classic: 11507
 ## Interface-Cata: 40402
+## Interface-Mists: 50500
 ## Title: Auto Payout
 ## Notes: Automatically send payouts through in game mail.
 ## Author: Oppzippy
