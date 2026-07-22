@@ -1,5 +1,5 @@
 ## Interface: 120007
-## Interface-Classic: 11508
+## Interface-Classic: 11509
 ## Interface-Cata: 40402
 ## Interface-Mists: 50504
 ## Title: Auto Payout
