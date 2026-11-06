@@ -1,24 +1,32 @@
 name: Update TOC Interface version(s)
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: 0 12 * * *
+    - cron: 0 18 * * *
 
 jobs:
   update-interface-version:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
 
       - name: Update TOC Interface version
-        uses: oppzippy/update-toc-action@v1
+        uses: p3lim/toc-interface-updater@v4
         with:
-          toc-path: AutoPayout.toc
+          flavor: |
+            forever
+            vanilla
+            titan
+            anniversary
+            classic
+            retail
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v8
         with:
           title: Update Interface version
           commit-message: Update Interface version
           branch: interface-version
           delete-branch: true
+
