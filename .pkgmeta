@@ -1,6 +1,4 @@
 package-as: AutoPayout
-enable-nolib-creation: no
-enable-toc-creation: yes
 
 externals:
   Libs/LibStub: https://repos.wowace.com/wow/libstub/trunk
